@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
-import { Request } from 'express';
 import { Group } from './group.model';
 import { GroupService } from './group.service';
 
@@ -9,16 +8,17 @@ export class GroupController {
     constructor(private groupService: GroupService){}
 
     @Get()
-    findAll(@Req() req: Request) : string {
-
-        console.log(req);
-
-        return 'returning all groups';
+    getEnabledGroups(){
+        return this.groupService.getEnabledGroups();
     }
 
     @Post()
     createGroup(@Body() group: Group){
-        return this.groupService.create(group);
+        return this.groupService.save(group);
     }
 
+    @Post("role")
+    insertRoleIntoGroup(@Body() group: Group){
+        return this.groupService.update(group._id, group);
+    }
 }
