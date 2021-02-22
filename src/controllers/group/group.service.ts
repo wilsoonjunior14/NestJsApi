@@ -10,7 +10,7 @@ export class GroupService {
     constructor(@InjectModel('Group') private readonly groupModel: Model<Group>){    
     }
 
-    async getById(id: string){
+    async getById(id: String){
         return await this.groupModel.findById(id);
     }
 
@@ -33,11 +33,15 @@ export class GroupService {
         ]);
     }
 
+    async getAll(){
+        return await this.groupModel.find({deleted: false});
+    }
+
     async save(group: Group) {
         return await new this.groupModel(group).save();
     }
 
-    async update(oldId: string, group: Group) {
+    async update(oldId: String, group: Group) {
         return await this.groupModel.updateOne({_id: oldId}, group);
     }
 

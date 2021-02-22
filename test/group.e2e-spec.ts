@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
 
-describe('RoleController (e2e)', () => {
+describe('GroupController (e2e)', () => {
     let app: INestApplication;
   
     beforeEach(async () => {
@@ -15,49 +15,49 @@ describe('RoleController (e2e)', () => {
       await app.init();
     });
   
-    it('GET /role', () => {
+    it('GET /group', () => {
         request(app.getHttpServer())
-            .get('/role')
-            .then((data) => {
-                expect(data.body.length > 0).toBeTruthy();
-            });
-    });
-
-    it('GET /role/:id Returns 500', () => {
-        request(app.getHttpServer())
-            .get('/role/'+'abced')
-            .then((data) => {
-                expect(data.body.statusCode).toBe(500);
-            });
-    });
-
-    it('POST /role', () => {
-        var roleMocked = {
-            description: "ABC"
-        };
-
-        request(app.getHttpServer())
-            .post('/role')
-            .send(roleMocked)
+            .get('/group')
             .then((data) => {
                 expect(data.body.status).toBe(200);
             });
     });
 
-    it('PUT /role Returns 500', () => {
+    it("GET /group/:id Invalid id", () => {
         request(app.getHttpServer())
-            .put('/role')
+            .get("/group/123454asd")
+            .then((data) => {
+                expect(data.body.status).toBe(500);
+            });
+    });
+
+    it("POST /group", () => {
+        request(app.getHttpServer())
+            .post("/group")
+            .send({
+                description: "NEW GROUP"
+            })
+            .then((data) => {
+                expect(data.body.status).toBe(200);
+            });
+
+    });
+
+    it("PUT /group without id", () => {
+        request(app.getHttpServer())
+            .put("/group")
             .send({})
             .then((data) => {
                 expect(data.body.status).toBe(500);
             });
     });
 
-    it ('DELETE /role/:id Returns 500', () => {
+    it("DELETE /group/:id invalid id", () => {
         request(app.getHttpServer())
-            .delete('/role/'+'abcde')
+            .delete("/group/alksdjalk")
             .then((data) => {
                 expect(data.body.status).toBe(500);
             });
     });
+
   });
