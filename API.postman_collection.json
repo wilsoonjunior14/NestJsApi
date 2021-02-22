@@ -144,7 +144,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "SYSADMIN",
+									"value": "FIRSTGROUP",
 									"type": "text"
 								}
 							]
@@ -199,9 +199,99 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:3000/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group"
+							]
 						},
 						"description": "Gets all enabled groups"
+					},
+					"response": []
+				},
+				{
+					"name": "/group/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/group/603393717b4c494a03ea5eb1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"603393717b4c494a03ea5eb1"
+							]
+						},
+						"description": "Gets an single instance of group"
+					},
+					"response": []
+				},
+				{
+					"name": "/group/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/group/603393717b4c494a03ea5eb1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group",
+								"603393717b4c494a03ea5eb1"
+							]
+						},
+						"description": "Deletes logically an single instance"
+					},
+					"response": []
+				},
+				{
+					"name": "/group",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "description",
+									"value": "GROUP DESCRIPTION UPDATED",
+									"type": "text"
+								},
+								{
+									"key": "id",
+									"value": "603393717b4c494a03ea5eb1",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"group"
+							]
+						},
+						"description": "Updates an single entity"
 					},
 					"response": []
 				}
