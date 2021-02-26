@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import * as request from 'supertest';
 
-describe('RoleController (e2e)', () => {
+describe('UserController (e2e)', () => {
     let app: INestApplication;
   
     beforeEach(async () => {
@@ -15,49 +15,46 @@ describe('RoleController (e2e)', () => {
       await app.init();
     });
   
-    it('GET /role', () => {
+    it('GET /user', () => {
         request(app.getHttpServer())
-            .get('/role')
+            .get('/user')
             .then((data) => {
                 expect(data.body.status).toBe(200);
             });
     });
 
-    it('GET /role/:id Returns 500', () => {
+    it('GET /user/:id Returns 500 when invalid id is provided', () => {
         request(app.getHttpServer())
-            .get('/role/'+'abced')
+            .get('/user/idasd')
             .then((data) => {
                 expect(data.body.status).toBe(500);
             });
     });
 
-    it('POST /role', () => {
-        var roleMocked = {
-            description: "ABC"
-        };
-
+    it('DELETE /user/:id Returns 500 when invalid id is provided', () => {
         request(app.getHttpServer())
-            .post('/role')
-            .send(roleMocked)
+            .delete('/user/idasd')
             .then((data) => {
-                expect(data.body.status).toBe(200);
+                expect(data.body.status).toBe(500);
             });
     });
 
-    it('PUT /role Returns 500', () => {
+    it('PUT /user/ Returns 500 when invalid data is provided', () => {
         request(app.getHttpServer())
-            .put('/role')
+            .put('/user')
             .send({})
             .then((data) => {
                 expect(data.body.status).toBe(500);
             });
     });
 
-    it ('DELETE /role/:id Returns 500', () => {
+    it('POST /user/ Returns 500 when invalid data is provided', () => {
         request(app.getHttpServer())
-            .delete('/role/'+'abcde')
+            .put('/user')
+            .send({})
             .then((data) => {
                 expect(data.body.status).toBe(500);
             });
     });
-  });
+
+});

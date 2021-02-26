@@ -34,7 +34,7 @@ export class GroupController {
     }
 
     @Post()
-    async createGroup(@Body() group: Group){
+    async createGroup(@Body() group){
         try{
 
             let validate = this.validateGroup(group);
@@ -63,7 +63,7 @@ export class GroupController {
     }
 
     @Put()
-    async updateGroup(@Body() group: Group){
+    async updateGroup(@Body() group){
         try{
 
             let validate = this.validateGroup(group);
@@ -83,11 +83,11 @@ export class GroupController {
     }
 
     @Post("role")
-    async insertRoleIntoGroup(@Body() group: Group){
+    async insertRoleIntoGroup(@Body() group){
         return await this.groupService.update(group._id, group);
     }
 
-    private validateGroup(group: Group){
+    private validateGroup(group){
         var returns;
 
         if (!group ||

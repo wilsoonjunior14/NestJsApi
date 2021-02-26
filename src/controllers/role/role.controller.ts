@@ -15,39 +15,42 @@ export class RoleController {
     }
 
     @Get('/:id')
-    findById(@Param('id') id: String){
+    async findById(@Param('id') id: String){
         try{
-            return this.roleService.findById(id);
+            const role = await this.roleService.findById(id);
+            return await this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, role);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Get()
-    findAllEnabledRoles(){
+    async findAllEnabledRoles(){
         try{
-            return this.roleService.findAllEnabledRoles();
+            const roles = await this.roleService.findAllEnabledRoles();
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, roles);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Post()
-    createRole(@Body() role: Role){
+    async createRole(@Body() role){
         try{
             let validation = this.validateRole(role);
             if (validation){
                 return validation;
             }
 
-            return this.roleService.create(role);
+            const results = await this.roleService.create(role);
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Put()
-    async updateRole(@Body() role: Role){
+    async updateRole(@Body() role){
         try{
             let validation = this.validateRole(role);
             if (validation){
@@ -56,7 +59,7 @@ export class RoleController {
 
             let oldRole = await this.roleService.findById(role._id);
             oldRole = Object.assign(oldRole, {description: role.description});
-            let updatedRole = this.roleService.update(oldRole);
+            let updatedRole = await this.roleService.update(oldRole);
 
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, updatedRole);
         } catch (err){
@@ -74,7 +77,7 @@ export class RoleController {
     
             let oldRole = await this.roleService.findById(id);
             oldRole = Object.assign(oldRole, {deleted: true});
-            let deletedRole = this.roleService.update(oldRole);
+            let deletedRole = await this.roleService.update(oldRole);
     
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, deletedRole);
         } catch(err){
@@ -82,7 +85,7 @@ export class RoleController {
         }
     }
 
-    private validateRole(role: Role) {
+    private validateRole(role) {
         var returns;
         if (!role ||
             !role.description || 

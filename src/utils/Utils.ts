@@ -39,9 +39,8 @@ export class Utils {
      * @returns Object that contains all messages joined.
      */
     buildMessage(field: String, ...messages: Array<String>){
-        messages.push(Constants.INVALID_COMMON_MESSAGE);
         let unifiedMessages = messages.join("\n");
-        return field + unifiedMessages;
+        return field + Constants.INVALID_COMMON_MESSAGE + "\n" + unifiedMessages;
     }
 
 }
