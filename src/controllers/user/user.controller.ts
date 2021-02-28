@@ -2,15 +2,12 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { UserService } from './user.service';
 import { Utils } from '../../utils/Utils';
 import { Constants } from '../../utils/Contansts';
-import { User } from './user.model';
+import * as bcrypt from 'bcrypt';
 
 @Controller('user')
 export class UserController {
 
     private utils;
-    private query = {
-        
-    };
 
     constructor(private UserService: UserService){
         this.utils = new Utils();
@@ -58,6 +55,8 @@ export class UserController {
             if (existingUsers.length > 0){
                 return this.utils.getFailureMessage(Constants.INVALID_EXISTING_USER, []);
             }
+
+            user.password = await this.utils.getsNewPassword(user.password);
 
             const createdUser = await this.UserService.save(user);
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, createdUser);
@@ -116,6 +115,66 @@ export class UserController {
         }
     }
 
+    @Post('/login')
+    async login(@Body() user){
+        try{
+
+            if (!user.email || 
+                !user.password || 
+                user.email.length > 100 ||
+                !new RegExp(Constants.PATTERN_FIELD_EMAIL).test(user.email) ||
+                user.password.length > 100){
+                    return this.utils.getFailureMessage(Constants.INVALID_LOGIN_FIELDS, user);
+            }
+
+            const query = {
+                email: {
+                    "$eq": user.email
+                },
+                deleted: false
+            };
+            const foundUsers = await this.UserService.findByQuery(query);
+
+            if (foundUsers.length === 0){
+                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, user);
+            }
+
+            const loggedUser = foundUsers[0];
+
+            const arePasswordsEquals = await bcrypt.compare(user.password, loggedUser.password);
+
+            if (!arePasswordsEquals){
+                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_PASSWORD_PROVIDED, user);
+            }
+
+            const token = await this.UserService.getToken(this.getPlainObject(loggedUser));
+
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {
+                access_token: token
+            });
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), user);
+        }
+    }
+
+    @Post('/token/isValid')
+    async tokenIsValid(@Body() payload){
+        try{
+
+            if (!payload ||
+                !payload.access_token){
+                    return this.utils.getFailureMessage(Constants.INVALID_TOKEN_INVALID, {});
+            }
+
+            const results = await this.UserService.checksIfTokenIsValid(payload.access_token);
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {
+                isValid: results
+            });
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), payload);
+        }
+    }
+
     private validateUser(user){
         let returns = {
             invalid: false,
@@ -166,11 +225,30 @@ export class UserController {
                 );
         }
 
+        if (!user.password || 
+            user.password.length > 100){
+                const passwordField = "Senha inválida!";
+                returns.invalid = true;
+                returns.messages.push(
+                    this.utils.buildMessage(passwordField, Constants.INVALID_FIELD_EMPTY, Constants.INVALID_FIELD_100_CHARACTERS)
+                );
+        }
+
         if (!user.group){
             user.group = null;
         }
 
         return returns;
+    }
+
+    private getPlainObject(user){
+        return {
+            name: user.name,
+            email: user.email,
+            cpfCnpj: user.cpfCnpj,
+            deleted: user.deleted,
+            phone: user.phone
+        };
     }
 
 }

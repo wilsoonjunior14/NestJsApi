@@ -14,11 +14,12 @@ describe('UserController', () => {
     email: "abc@gmail.com",
     phone: "(88)88888-8888",
     cpfCnpj: "123.123.123-12",
-    group: "1231231"
+    group: "1231231",
+    password: "12345"
   };
 
   beforeEach(async () => {
-    userService = new UserService(null);
+    userService = new UserService(null, null);
     controller = new UserController(userService);
   });
 

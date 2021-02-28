@@ -1,4 +1,5 @@
 export const Constants = {
+    SECRET_KEY: "ImmobileApp2021",
     PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS : /[a-zA-Z]+$/g,
     PATTERN_FIELD_EMAIL: /\D+@\D+\.(com|br)$/g,
     PATTERN_FIELD_CPF_CNPJ_MASKED: /((\d{3}\.){2}\d{3}-\d{2})|(\d{2}(\.\d{3}){2}.\d{4}\.\d{2})/g,
@@ -13,5 +14,11 @@ export const Constants = {
     INVALID_EXISTING_USER: "Usuário já registrado no sistema.",
     INVALID_EXISTING_ENTITY: "O sistema já possui uma entidade com os dados informados!",
     INVALID_IDENTIFIER_NOT_PROVIDED: "Identificador não informado!",
+    INVALID_LOGIN_FIELDS: "Email ou Senha inválidos! Verifique se os campos estão com no máximo 255 caracteres ou se o email informado é válido.",
+    INVALID_LOGIN_USER_NOT_FOUND: "Nenhum usuário com as informações repassadas foi encontrado.",
+    INVALID_LOGIN_PASSWORD_PROVIDED: "Senha informada está incorreta.",
+    INVALID_TOKEN_INVALID: "Token de acesso não informado ou inválido!",
+    INVALID_REQUEST_AUTHORIZATION_HEADER_NOT_FOUND: "Informações de autorização não informados!",
+    INVALID_REQUEST_AUTHORIZATION_EXPIRED_TOKEN: "Token expirado ou inválido!",
     SUCCESS_MESSAGE_OPERATION: "Operação realizada com sucesso!"
 }
