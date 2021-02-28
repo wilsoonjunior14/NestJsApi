@@ -33,6 +33,10 @@ export class GroupService {
         ]);
     }
 
+    async findByQuery(query: any){
+        return await this.groupModel.find(query);
+    }
+
     async getAll(){
         return await this.groupModel.find({deleted: false});
     }

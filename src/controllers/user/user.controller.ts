@@ -166,6 +166,10 @@ export class UserController {
                 );
         }
 
+        if (!user.group){
+            user.group = null;
+        }
+
         return returns;
     }
 

@@ -11,5 +11,7 @@ export const Constants = {
     INVALID_PATTERN_FIELD_CPF_CNPJ: "CPF/CNPJ fora de padrão.",
     INVALID_PATTERN_FIELD_PHONE: "Telefone fora do formato padrão.",
     INVALID_EXISTING_USER: "Usuário já registrado no sistema.",
+    INVALID_EXISTING_ENTITY: "O sistema já possui uma entidade com os dados informados!",
+    INVALID_IDENTIFIER_NOT_PROVIDED: "Identificador não informado!",
     SUCCESS_MESSAGE_OPERATION: "Operação realizada com sucesso!"
 }

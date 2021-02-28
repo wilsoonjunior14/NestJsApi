@@ -60,6 +60,7 @@ describe('GroupController', () => {
 
   it("createGroup", async () => {
     sinon.stub(service, 'save').callsFake(() => MOCKED_GROUP);
+    sinon.stub(service, 'findByQuery').callsFake(() => []);
 
     var response = await controller.createGroup(MOCKED_GROUP);
 
@@ -75,8 +76,9 @@ describe('GroupController', () => {
   it("updateGroup", async () => {
     sinon.stub(service, 'update').callsFake(() => MOCKED_GROUP);
     sinon.stub(service, 'getById').callsFake(() => MOCKED_GROUP);
+    sinon.stub(service, 'findByQuery').callsFake(() => []);
 
-    var MOCKED_UPDATED_GROUP = Object.assign(MOCKED_GROUP, {id: "1kjashdkajs"});
+    var MOCKED_UPDATED_GROUP = Object.assign(MOCKED_GROUP, {_id: "1kjashdkajs"});
 
     var response = await controller.updateGroup(MOCKED_UPDATED_GROUP);
 

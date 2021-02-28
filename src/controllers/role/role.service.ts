@@ -18,6 +18,10 @@ export class RoleService{
         return await this.roleModel.find({deleted: false}).sort({description: 1});
     }
 
+    async findByQuery(query){
+        return await this.roleModel.find(query);
+    }
+
     async create(role: Role){
         return await new this.roleModel(role).save();
     }

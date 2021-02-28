@@ -62,6 +62,7 @@ describe('RoleController', () => {
 
   it('createdRole', async () => {
     sinon.stub(service, 'create').callsFake(() => MOCKED_ROLE);
+    sinon.stub(service, 'findByQuery').callsFake(() => []);
 
     var results = await controller.createRole(MOCKED_ROLE);
 
@@ -77,7 +78,8 @@ describe('RoleController', () => {
   it('updateRole', async () => {
     sinon.stub(service, 'findById').callsFake(() => MOCKED_ROLE);
     sinon.stub(service, 'update').callsFake(() => MOCKED_ROLE);
-    const MOCKED_UPDATED_ROLE = Object.assign(MOCKED_ROLE, {id: "1023lkj1l23"});
+    sinon.stub(service, 'findByQuery').callsFake(() => []);
+    const MOCKED_UPDATED_ROLE = Object.assign(MOCKED_ROLE, {_id: "1023lkj1l23"});
 
     var returns = await controller.updateRole(MOCKED_UPDATED_ROLE);
 
