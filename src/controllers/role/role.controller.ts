@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
-import { Role } from './role.model';
 import { RoleService } from './role.service';
 import { Constants } from '../../utils/Contansts';
 import { Utils } from "../../utils/Utils";
-import { json } from 'express';
+import { group } from 'console';
 
 @Controller('role')
 export class RoleController {
@@ -15,48 +14,76 @@ export class RoleController {
     }
 
     @Get('/:id')
-    findById(@Param('id') id: String){
+    async findById(@Param('id') id: String){
         try{
-            return this.roleService.findById(id);
+            const role = await this.roleService.findById(id);
+            return await this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, role);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Get()
-    findAllEnabledRoles(){
+    async findAllEnabledRoles(){
         try{
-            return this.roleService.findAllEnabledRoles();
+            const roles = await this.roleService.findAllEnabledRoles();
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, roles);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Post()
-    createRole(@Body() role: Role){
+    async createRole(@Body() role){
         try{
-            let validation = this.validateRole(role);
+            let validation = this.validateRole(role, false);
             if (validation){
                 return validation;
             }
 
-            return this.roleService.create(role);
+            const query = {
+                description: {
+                    "$eq": role.description
+                }
+            };
+
+            let existingRoles = await this.roleService.findByQuery(query);
+            if (existingRoles.length > 0){
+                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_ENTITY, role);
+            }
+
+            const results = await this.roleService.create(role);
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 
     @Put()
-    async updateRole(@Body() role: Role){
+    async updateRole(@Body() role){
         try{
-            let validation = this.validateRole(role);
+            let validation = this.validateRole(role, true);
             if (validation){
                 return validation;
             }
 
+            const query = {
+                description: {
+                    "$eq": role.description
+                },
+                _id: {
+                    "$ne": role._id
+                }
+            };
+
+            let existingRoles = await this.roleService.findByQuery(query);
+            if (existingRoles.length > 0){
+                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_ENTITY, role);
+            }
+
             let oldRole = await this.roleService.findById(role._id);
             oldRole = Object.assign(oldRole, {description: role.description});
-            let updatedRole = this.roleService.update(oldRole);
+            let updatedRole = await this.roleService.update(oldRole);
 
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, updatedRole);
         } catch (err){
@@ -74,7 +101,7 @@ export class RoleController {
     
             let oldRole = await this.roleService.findById(id);
             oldRole = Object.assign(oldRole, {deleted: true});
-            let deletedRole = this.roleService.update(oldRole);
+            let deletedRole = await this.roleService.update(oldRole);
     
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, deletedRole);
         } catch(err){
@@ -82,8 +109,7 @@ export class RoleController {
         }
     }
 
-    private validateRole(role: Role) {
-        var returns;
+    private validateRole(role, validateId) {
         if (!role ||
             !role.description || 
             role.description.length > 100 || 
@@ -94,9 +120,12 @@ export class RoleController {
             Constants.INVALID_FIELD_100_CHARACTERS, 
             Constants.INVALID_PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS);
 
-            returns = this.utils.getFailureMessage(errorMessage, role);
+            return this.utils.getFailureMessage(errorMessage, role);
         }
-        return returns;
+
+        if (validateId && !role._id){
+            return this.utils.getFailureMessage(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, role);
+        }
     }
 
 }

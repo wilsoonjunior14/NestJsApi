@@ -34,12 +34,23 @@ export class GroupController {
     }
 
     @Post()
-    async createGroup(@Body() group: Group){
+    async createGroup(@Body() group){
         try{
 
-            let validate = this.validateGroup(group);
+            let validate = this.validateGroup(group, false);
             if (validate){
                 return validate;
+            }
+
+            const query = {
+                description: {
+                    "$eq": group.description
+                }
+            };
+
+            let existingGroups = await this.groupService.findByQuery(query);
+            if (existingGroups.length > 0){
+                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_ENTITY, group);
             }
 
             let savedGroup = await this.groupService.save(group);
@@ -63,18 +74,32 @@ export class GroupController {
     }
 
     @Put()
-    async updateGroup(@Body() group: Group){
+    async updateGroup(@Body() group){
         try{
 
-            let validate = this.validateGroup(group);
+            let validate = this.validateGroup(group, true);
             if (validate){
                 return validate;
             }
 
-            let oldGroup = await this.groupService.getById(group.id);
+            const query = {
+                description: {
+                    "$eq": group.description
+                },
+                _id: {
+                    "$ne": group._id
+                }
+            };
+
+            let existingGroups = await this.groupService.findByQuery(query);
+            if (existingGroups.length > 0){
+                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_ENTITY, group);
+            }
+
+            let oldGroup = await this.groupService.getById(group._id);
             let updatedGroup = Object.assign(oldGroup, {description: group.description});
 
-            let results = await this.groupService.update(group.id, updatedGroup);
+            let results = await this.groupService.update(group._çid, updatedGroup);
 
             return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
         } catch(err){
@@ -83,12 +108,11 @@ export class GroupController {
     }
 
     @Post("role")
-    async insertRoleIntoGroup(@Body() group: Group){
+    async insertRoleIntoGroup(@Body() group){
         return await this.groupService.update(group._id, group);
     }
 
-    private validateGroup(group: Group){
-        var returns;
+    private validateGroup(group, validateId){
 
         if (!group ||
             !group.description ||
@@ -100,9 +124,11 @@ export class GroupController {
             Constants.INVALID_FIELD_100_CHARACTERS,
             Constants.INVALID_PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS);
 
-            returns = this.utils.getFailureMessage(errorMessage, group);
+            return this.utils.getFailureMessage(errorMessage, group);
         }
 
-        return returns;
+        if (validateId && !group._id){
+            return this.utils.getFailureMessage(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, group);
+        }
     }
 }

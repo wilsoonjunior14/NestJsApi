@@ -10,6 +10,29 @@
 			"item": [
 				{
 					"name": "/role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"console.log(pm.response);",
+									"",
+									"pm.test(\"Response status is 200\", () => {",
+									"    pm.response.status === 200",
+									"});",
+									"",
+									"pm.test(\"Role created recently has deleted attribute FALSE\", () => {",
+									"    pm.response.json().deleted === false",
+									"});",
+									"",
+									"pm.test(\"Role created recently has an id\", () => {",
+									"    pm.response.json()._id !== undefined",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -40,6 +63,34 @@
 				},
 				{
 					"name": "/role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checks if list of roles is returned\", () => {",
+									"    typeof pm.response.json() === \"object\"",
+									"});",
+									"",
+									"pm.test(\"Status returned is 200\", () => {",
+									"    pm.response.status === 200",
+									"});",
+									"",
+									"pm.test(\"Checks if all roles description hasn't special characters\", () => {",
+									"    var results = pm.response.json();",
+									"    if (results.length > 0){",
+									"        for (var i=0; i<results.length; i++){",
+									"            return new RegExp(/[a-zA-Z]*$/g).test(results[i].description);",
+									"        }",
+									"    }else{",
+									"        return true;",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -60,6 +111,23 @@
 				},
 				{
 					"name": "/role/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checks if single entity has an _id\", () => {",
+									"    pm.response.json()._id !== undefined",
+									"});",
+									"",
+									"pm.test(\"Checks if description hasn't special character\", () => {",
+									"    new RegExp(/[a-zA-Z]*$/g).test(pm.response.json().description)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -81,6 +149,19 @@
 				},
 				{
 					"name": "/role/:id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status of request should be 200\", () => {",
+									"    pm.response.json().status === 200;",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -102,12 +183,25 @@
 				},
 				{
 					"name": "/role",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Checks if status of request is 200\", () => {",
+									"    pm.response.json().status === 200",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"_id\": \"60313c15c0970d335fb27067\",\n    \"description\": \"COMMON COMMON#%#$%#$%\"\n}",
+							"raw": "{\n    \"_id\": \"60313c15c0970d335fb27067\",\n    \"description\": \"COMMON COMMON\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -292,6 +386,178 @@
 							]
 						},
 						"description": "Updates an single entity"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GET /user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user"
+							]
+						},
+						"description": "gets all enabled instances of user"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Ana de Sousa Rodrigues",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "ana@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "(88)99924-1492",
+									"type": "text"
+								},
+								{
+									"key": "cpfCnpj",
+									"value": "123.123.123-23",
+									"type": "text"
+								},
+								{
+									"key": "group",
+									"value": "602c3c817e5df60b5e7fb3a2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user"
+							]
+						},
+						"description": "Creates a new instance of user inside of database"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /user/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/user/603454a0b2a0215d9b57c6ed",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"603454a0b2a0215d9b57c6ed"
+							]
+						},
+						"description": "Gets an single instance of user"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /user/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/user/6033fa391d6c2d59bce242b8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"6033fa391d6c2d59bce242b8"
+							]
+						},
+						"description": "Deletes logically a single entity of user"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "603454a0b2a0215d9b57c6ed",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Ana Ferreira",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "aanadesousaa@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "(88)88888-8888",
+									"type": "text"
+								},
+								{
+									"key": "cpfCnpj",
+									"value": "123.123.123-12",
+									"type": "text"
+								},
+								{
+									"key": "group",
+									"value": "602c3c817e5df60b5e7fb3a2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3000/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user"
+							]
+						},
+						"description": "Updates a single entity of user"
 					},
 					"response": []
 				}
