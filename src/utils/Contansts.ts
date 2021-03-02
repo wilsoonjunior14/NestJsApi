@@ -18,6 +18,7 @@ export const Constants = {
     INVALID_LOGIN_USER_NOT_FOUND: "Nenhum usuário com as informações repassadas foi encontrado.",
     INVALID_LOGIN_PASSWORD_PROVIDED: "Senha informada está incorreta.",
     INVALID_TOKEN_INVALID: "Token de acesso não informado ou inválido!",
+    INVALID_RECOVERY_EMAIL: "Email inválido!",
     INVALID_REQUEST_AUTHORIZATION_HEADER_NOT_FOUND: "Informações de autorização não informados!",
     INVALID_REQUEST_AUTHORIZATION_EXPIRED_TOKEN: "Token expirado ou inválido!",
     SUCCESS_MESSAGE_OPERATION: "Operação realizada com sucesso!"

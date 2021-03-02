@@ -9,9 +9,34 @@ import { UserModule } from './controllers/user/user.module';
 import { AuthorizationMiddleware } from './middlewares/authorization.middleware';
 import { RoleController } from './controllers/role/role.controller';
 import { GroupController } from './controllers/group/group.controller';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/testing'),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        ignoreTLS: false,
+        secure: false,
+        auth: {
+          user: 'wilsoonjunior@gmail.com',
+          pass: 'wilsonjuniorfoda14',
+        },
+      },
+      defaults: {
+        from:'"nest-modules" <modules@nestjs.com>',
+      },
+      template: {
+        dir: __dirname + '/src/templates',
+        adapter: new EjsAdapter(),
+        options: {
+          strict: false,
+        },
+      },
+    }),
     GroupModule,
     RoleModule,
     UserModule

@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from 'mongoose';
 import { User } from './user.model';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService { 
@@ -39,5 +40,9 @@ export class UserService {
     async checksIfTokenIsValid(token: string){
         const isTokenValid = await this.jwtService.verify(token);
         return isTokenValid.exp > isTokenValid.iat;
+    }
+
+    async comparePasswords(password, passwordEncrypted){
+        return await bcrypt.compare(password, passwordEncrypted);
     }
 }

@@ -3,13 +3,15 @@ import { UserService } from './user.service';
 import { Utils } from '../../utils/Utils';
 import { Constants } from '../../utils/Contansts';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../../utils/Mail.service';
 
 @Controller('user')
 export class UserController {
 
     private utils;
 
-    constructor(private UserService: UserService){
+    constructor(private UserService: UserService,
+        private mailService: MailService){
         this.utils = new Utils();
     }
 
@@ -141,7 +143,7 @@ export class UserController {
 
             const loggedUser = foundUsers[0];
 
-            const arePasswordsEquals = await bcrypt.compare(user.password, loggedUser.password);
+            const arePasswordsEquals = await this.UserService.comparePasswords(user.password, loggedUser.password);
 
             if (!arePasswordsEquals){
                 return this.utils.getFailureMessage(Constants.INVALID_LOGIN_PASSWORD_PROVIDED, user);
@@ -172,6 +174,128 @@ export class UserController {
             });
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), payload);
+        }
+    }
+
+    @Post('/recoveryPassword')
+    public async recoveryPassword(@Body() user){
+        try{
+            
+            if (!user ||
+                !user.email ||
+                user.email.length > 100){
+                    return this.utils.getFailureMessage(Constants.INVALID_RECOVERY_EMAIL, {});
+            }
+
+            const query = {
+                email: {
+                    "$eq": user.email
+                },
+                deleted: false
+            };
+
+            const foundUsers = await this.UserService.findByQuery(query);
+
+            if (foundUsers.length === 0){
+                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+            }
+
+            const foundUser = foundUsers[0];
+
+            const verificationCode = this.utils.getRandomNumber();
+            foundUser.verificationCode = verificationCode;
+            foundUser.id = foundUser._id;
+
+            await this.UserService.update(foundUser);
+
+            await this.mailService.sendRecoveryPasswordMail(foundUser);
+
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {});
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), err);
+        }
+    }
+
+    @Post('/validateCode')
+    public async validateCode(@Body() code){
+        try{
+
+            if (!code ||
+                !code.verificationCode){
+                    return this.utils.getFailureMessage("Erro! Código de verificação não informado.", {});
+            }
+
+            if (!code.email || 
+                code.email.length > 100){
+                    return this.utils.getFailureMessage(Constants.INVALID_RECOVERY_EMAIL, {});
+            }
+
+            const query = {
+                email: {
+                    "$eq": code.email
+                },
+                verificationCode: code.verificationCode,
+                deleted: false
+            };
+
+            const foundUsers = await this.UserService.findByQuery(query);
+
+            if (foundUsers.length === 0){
+                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+            }
+
+            return this.utils.getSuccessMessage("Validação do código de verificação realizada com sucesso!", {
+                validated: true
+            });
+
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), {});
+        }
+    }
+
+    @Put('/updatePassword')
+    public async updatePassword(@Body() user){
+        try{
+
+            if (!user ||
+                !user.email ||
+                !user.verificationCode || 
+                !user.password){
+                    return this.utils.getFailureMessage("Email do usuário ou código de verificação não informados!", {});
+            }
+
+            if (!user.email ||
+                user.email.length > 100 ||
+                !new RegExp(Constants.PATTERN_FIELD_EMAIL).test(user.email)){
+                    const emailNameField = "Email inválido!";
+                    const message = this.utils.buildMessage(emailNameField, Constants.INVALID_FIELD_100_CHARACTERS, Constants.INVALID_FIELD_EMPTY, Constants.INVALID_PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS);
+                    return this.utils.getFailureMessage(message, {});
+            }
+
+            const query = {
+                email: {
+                    "$eq": user.email
+                },
+                verificationCode: user.verificationCode,
+                deleted: false
+            };
+
+            const foundUsers = await this.UserService.findByQuery(query);
+
+            if (foundUsers.length === 0){
+                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+            }
+
+            let oldUser = foundUsers[0];
+
+            oldUser.password = await this.utils.getsNewPassword(user.password);
+            oldUser.id = oldUser._id;
+
+            await this.UserService.update(oldUser);
+
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {});
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), {});
         }
     }
 

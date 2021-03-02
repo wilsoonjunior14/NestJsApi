@@ -40,6 +40,9 @@ export const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    verificationCode: {
+        type: String,
     }
 
 });
@@ -54,5 +57,6 @@ export interface User extends mongoose.Document {
     createdAt: Date,
     updatedAt: Date,
     group: any,
-    password: string
+    password: string,
+    verificationCode: string
 }

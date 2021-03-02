@@ -58,4 +58,13 @@ export class Utils {
         return header.split("Bearer ")[1];
     }
 
+    getRandomNumber() : String{
+        let code = "";
+        for (var i=0; i<4; i++){
+            code = code + "" + Math.round(Math.random()*10);
+        }
+
+        return code;
+    }
+
 }
