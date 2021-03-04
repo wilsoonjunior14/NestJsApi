@@ -11,6 +11,10 @@ import { RoleController } from './controllers/role/role.controller';
 import { GroupController } from './controllers/group/group.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { ImmobileModule } from './controllers/immobile/immobile.module';
+import { LocalizationModule } from './controllers/localization/localization.module';
+import { ImmobileController } from './controllers/immobile/immobile.controller';
+import { LocalizationController } from './controllers/localization/localization.controller';
 
 @Module({
   imports: [
@@ -39,7 +43,9 @@ import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
     }),
     GroupModule,
     RoleModule,
-    UserModule
+    UserModule,
+    LocalizationModule,
+    ImmobileModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -49,7 +55,9 @@ export class AppModule implements NestModule {
     consumer
       .apply(AuthorizationMiddleware)
       .forRoutes(RoleController, 
-        GroupController, 
+        GroupController,
+        ImmobileController,
+        LocalizationController,
         {path: 'user', method: RequestMethod.GET},
         {path: 'user', method: RequestMethod.POST},
         {path: 'user', method: RequestMethod.PUT},
