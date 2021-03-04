@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { Utils } from '../../utils/Utils';
 import { ImmobileService } from './immobile.service';
 import { Constants } from '../../utils/Contansts';
@@ -70,7 +70,8 @@ export class ImmobileController {
 
             const newImmobile = Object.assign(immobile, {
                 user: user._id,
-                localization: createdLocalization._id
+                localization: createdLocalization._id,
+                client: null
             });
 
             const createdImmobile = await this.immobileService.create(newImmobile);
@@ -100,7 +101,45 @@ export class ImmobileController {
             oldImmobile.updatedAt = new Date();
             const results = await this.immobileService.update(oldImmobile);
 
-            return this.utils.getFailureMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), {});
+        }
+    }
+
+    @Post('/addClient')
+    public async addClient(@Body() immobileWithClient){
+        try{
+
+            const validation = this.validateInsertClient(immobileWithClient);
+            if (validation.invalid){
+                return this.utils.getFailureMessage(validation.message, immobileWithClient);
+            }
+
+            const oldImmobile = await this.immobileService.getById(immobileWithClient._id);
+            oldImmobile.client = immobileWithClient.client._id;
+            const results = await this.immobileService.update(oldImmobile);
+
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+        } catch(err){
+            return this.utils.getFailureMessage(err.toString(), {});
+        }
+    }
+
+    @Patch('/removeClient')
+    public async removeClient(@Body() immobileWithClient){
+        try{
+
+            const validation = this.validateInsertClient(immobileWithClient);
+            if (validation.invalid){
+                return this.utils.getFailureMessage(validation.message, immobileWithClient);
+            }
+
+            const oldImmobile = await this.immobileService.getById(immobileWithClient._id);
+            oldImmobile.client = null;
+            const results = await this.immobileService.update(oldImmobile);
+
+            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
         } catch(err){
             return this.utils.getFailureMessage(err.toString(), {});
         }
@@ -170,5 +209,32 @@ export class ImmobileController {
 
     }
 
+    private validateInsertClient(immobile){
+        const immobileValidation = {
+            invalid: false,
+            message: ""
+        };
+        
+        if (!immobile){
+            immobileValidation.invalid = true;
+            immobileValidation.message = Constants.INVALID_FIELD_EMPTY;
+            return immobileValidation;
+        }
+
+        if (!immobile._id){
+            immobileValidation.invalid = true;
+            immobileValidation.message = this.utils.buildMessage("Identificador do imóvel inválido!", Constants.INVALID_IDENTIFIER_NOT_PROVIDED, Constants.INVALID_FIELD_EMPTY);
+            return immobileValidation;
+        }
+
+        if (!immobile.client || 
+            !immobile.client._id){
+            immobileValidation.invalid = true;
+            immobileValidation.message = this.utils.buildMessage("Cliente não identificado!", Constants.INVALID_FIELD_EMPTY, Constants.INVALID_IDENTIFIER_NOT_PROVIDED);
+            return immobileValidation;
+        }
+
+        return immobileValidation;
+    }
 
 }

@@ -290,6 +290,7 @@ export class UserController {
 
             oldUser.password = await this.utils.getsNewPassword(user.password);
             oldUser.id = oldUser._id;
+            oldUser.verificationCode = "";
 
             await this.UserService.update(oldUser);
 

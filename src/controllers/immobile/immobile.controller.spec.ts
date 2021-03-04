@@ -224,6 +224,105 @@ describe('ImmobileController', () => {
     expect(results.status).toBe(500);
   });
 
+  it("addClient Returns 500 when none data is provided", async () => {
+    const results = await controller.addClient(null);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when none _id is provided", async () => {
+    const results = await controller.addClient({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when client is not provided", async () => {
+    const immobile = {
+      _id: "abc"
+    };
+
+    const results = await controller.addClient(immobile);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when client _id is not provided", async () => {
+    const immobile = {
+      _id: "abc",
+      client: {
+
+      }
+    };
+
+    const results = await controller.addClient(immobile);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient", async () => {
+    const immobile = {
+      _id: "abc",
+      client: {
+        _id: "abc"
+      }
+    };
+
+    sinon.stub(immobileService, 'getById').callsFake(() => immobile);
+    sinon.stub(immobileService, 'update').callsFake(() => immobile);
+    const results = await controller.addClient(immobile);
+
+    expect(results.status).toBe(200);
+  });
+
+  it("addClient Returns 500 when none data is provided", async () => {
+    const results = await controller.removeClient(null);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when none _id is provided", async () => {
+    const results = await controller.removeClient({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when client is not provided", async () => {
+    const immobile = {
+      _id: "abc"
+    };
+
+    const results = await controller.removeClient(immobile);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("addClient Returns 500 when client _id is not provided", async () => {
+    const immobile = {
+      _id: "abc",
+      client: {
+
+      }
+    };
+
+    const results = await controller.removeClient(immobile);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("removeClient", async () => {
+    const immobile = {
+      _id: "abc",
+      client: {
+        _id: "abc"
+      }
+    };
+
+    sinon.stub(immobileService, 'getById').callsFake(() => immobile);
+    sinon.stub(immobileService, 'update').callsFake(() => immobile);
+    const results = await controller.removeClient(immobile);
+
+    expect(results.status).toBe(200);
+  });
 
 });
 

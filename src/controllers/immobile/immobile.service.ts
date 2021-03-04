@@ -19,7 +19,8 @@ export class ImmobileService {
                     }
                 },
                 this.getUserJoinCondition(),
-                this.getLocalizationJoinCondition()
+                this.getLocalizationJoinCondition(),
+                this.getClientJoinCondition()
             ]
         );
     }
@@ -43,6 +44,17 @@ export class ImmobileService {
                 "from": "users",
                 "foreignField": "_id",
                 "as": "user"
+            }
+        };
+    }
+
+    private getClientJoinCondition(){
+        return {
+            "$lookup": {
+                "localField": "client",
+                "from": "users",
+                "foreignField": "_id",
+                "as": "client"
             }
         };
     }
