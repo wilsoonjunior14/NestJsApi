@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req } from '@nestjs/common';
 import { Utils } from '../../utils/Utils';
 import { ImmobileService } from './immobile.service';
 import { Constants } from '../../utils/Contansts';
 import { LocalizationService } from '../localization/localization.service';
 import { UserService } from '../user/user.service';
 import { Localization } from '../../../dist/controllers/localization/localization.model';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('immobile')
 export class ImmobileController {
@@ -13,35 +14,36 @@ export class ImmobileController {
 
     constructor(private immobileService: ImmobileService, 
         private localizationService: LocalizationService,
-        private userService: UserService){
-        this.utils = new Utils();
+        private userService: UserService,
+        private logsService: LogsService){
+        this.utils = new Utils(this.logsService, this.userService);
     }
 
     @Get()
-    public async getAll(){
+    public async getAll(@Req() request){
         try{
             const immobiles = await this.immobileService.getEnabledImmobiles();
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, immobiles);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, immobiles, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), err, request);
         }
     }
 
     @Get('/:id')
-    public async getById(@Param('id') id: String){
+    public async getById(@Param('id') id: String, @Req() request){
         try{
             const immobile = await this.immobileService.getById(id);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, immobile);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, immobile, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), id, request);
         }
     }
 
     @Delete('/:id')
-    public async delete(@Param('id') id: String){
+    public async delete(@Param('id') id: String, @Req() request){
         try{
             if (id.trim().length === 0){
-                return this.utils.getFailureMessage(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, {});
+                return await this.utils.getInternalServerError(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, id, request);
             }
 
             const oldImmobile = await this.immobileService.getById(id);
@@ -49,19 +51,19 @@ export class ImmobileController {
 
             const results = await this.immobileService.update(oldImmobile);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), id, request);
         }
     }
 
     @Post()
-    public async create(@Body() immobile){
+    public async create(@Body() immobile, @Req() request){
         try{
 
             const validated = this.validateImmobile(immobile, false);
             if (validated.invalid){
-                return this.utils.getFailureMessage(this.utils.buildMessage("Imóvel com campo(s) inválido(s)!", validated.messages.join(",")), {});
+                return await this.utils.getInternalServerError(this.utils.buildMessage("Imóvel com campo(s) inválido(s)!", validated.messages.join(",")), immobile, request);
             }
 
             const user = await this.userService.getById(immobile.user._id);
@@ -76,19 +78,19 @@ export class ImmobileController {
 
             const createdImmobile = await this.immobileService.create(newImmobile);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, createdImmobile);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, createdImmobile, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), immobile, request);
         }
     }
 
     @Put()
-    public async update(@Body() immobile){
+    public async update(@Body() immobile, @Req() request){
         try{
 
             const validated = this.validateImmobile(immobile, true);
             if (validated.invalid){
-                return this.utils.getFailureMessage(this.utils.buildMessage("Imóvel com campo(s) inválido(s)!", validated.messages.join(",")), {});
+                return await this.utils.getInternalServerError(this.utils.buildMessage("Imóvel com campo(s) inválido(s)!", validated.messages.join(",")), request, request);
             }
 
             let oldLocalization = await this.localizationService.getById(immobile.localization._id);
@@ -101,47 +103,47 @@ export class ImmobileController {
             oldImmobile.updatedAt = new Date();
             const results = await this.immobileService.update(oldImmobile);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), immobile, request);
         }
     }
 
     @Post('/addClient')
-    public async addClient(@Body() immobileWithClient){
+    public async addClient(@Body() immobileWithClient, @Req() request){
         try{
 
             const validation = this.validateInsertClient(immobileWithClient);
             if (validation.invalid){
-                return this.utils.getFailureMessage(validation.message, immobileWithClient);
+                return await this.utils.getInternalServerError(validation.message, immobileWithClient, request);
             }
 
             const oldImmobile = await this.immobileService.getById(immobileWithClient._id);
             oldImmobile.client = immobileWithClient.client._id;
             const results = await this.immobileService.update(oldImmobile);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), immobileWithClient, request);
         }
     }
 
     @Patch('/removeClient')
-    public async removeClient(@Body() immobileWithClient){
+    public async removeClient(@Body() immobileWithClient, @Req() request){
         try{
 
             const validation = this.validateInsertClient(immobileWithClient);
             if (validation.invalid){
-                return this.utils.getFailureMessage(validation.message, immobileWithClient);
+                return await this.utils.getInternalServerError(validation.message, immobileWithClient, request);
             }
 
             const oldImmobile = await this.immobileService.getById(immobileWithClient._id);
             oldImmobile.client = null;
             const results = await this.immobileService.update(oldImmobile);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), immobileWithClient, request);
         }
     }
 

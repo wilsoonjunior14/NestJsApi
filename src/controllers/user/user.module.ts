@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { Constants } from '../../utils/Contansts';
 import { MailService } from '../../utils/Mail.service';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MailService } from '../../utils/Mail.service';
           expiresIn: '24h'
         }
       }),
+      LogsModule
   ],
   exports: [UserService],
   controllers: [UserController],

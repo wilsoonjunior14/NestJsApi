@@ -5,12 +5,14 @@ import { ImmobileSchema } from './immobile.model';
 import { ImmobileService } from './immobile.service';
 import { UserModule } from '../user/user.module';
 import { LocalizationModule } from '../localization/localization.module';
+import { LogsModule } from '../logs/logs.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{name: 'Immobile', schema: ImmobileSchema}]),
         UserModule,
-        LocalizationModule
+        LocalizationModule,
+        LogsModule
     ],
     controllers: [ImmobileController],
     providers: [ImmobileService],

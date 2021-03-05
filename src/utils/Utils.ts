@@ -1,32 +1,30 @@
 import { Constants } from './Contansts';
 import * as bcrypt from 'bcrypt';
+import { LogsService } from '../controllers/logs/logs.service';
+import { UserService } from '../controllers/user/user.service';
+
 export class Utils {
 
-    /**
-     * Gets a failure object message.
-     * 
-     * @param message Error message.
-     * @param data Any object or array.
-     * @returns any Object for request.
-     */
-    getFailureMessage(message: String, data: any) : any{
-        return {
-            status: 500,
-            message: message,
-            data: data
-        };
+    constructor(private logsService: LogsService,
+        private userService: UserService){
     }
 
-    /**
-     * Gets a success object message.
-     * 
-     * @param message Success message.
-     * @param data Any Object for request.
-     * @returns Object that contains success information.
-     */
-    getSuccessMessage(message: String, data: any) : any{
+    async getInternalServerError(message: String, data: any, request: any){
+        return await this.getAPIResponse(message, 500, data, request);        
+    }
+
+    async getResponse(message: String, data: any, request: any){
+        return await this.getAPIResponse(message, 200, data, request);
+    }
+
+    async getAPIResponse(message: String, statusCode: Number, data: any, request: any){
+        if (request.headers.authorization){
+            const currentUser = await this.userService.getDataByToken(await this.getsTokenByHeader(request.headers.authorization));
+            await this.logsService.saveLog(message, statusCode, data, currentUser, request);
+        }
+
         return {
-            status: 200,
+            status: statusCode,
             message: message,
             data: data
         };
@@ -55,6 +53,9 @@ export class Utils {
     }
 
     getsTokenByHeader(header){
+        if (!header){
+            return;
+        }
         return header.split("Bearer ")[1];
     }
 

@@ -1,7 +1,7 @@
 export const Constants = {
     SECRET_KEY: "ImmobileApp2021",
     PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS : /[a-zA-Z]+$/g,
-    PATTERN_FIELD_EMAIL: /\D+@\D+\.(com|br)$/g,
+    PATTERN_FIELD_EMAIL: /[a-zA-Z0-9]+@\D+\.(com|br)$/g,
     PATTERN_FIELD_CPF_CNPJ_MASKED: /((\d{3}\.){2}\d{3}-\d{2})|(\d{2}(\.\d{3}){2}.\d{4}\.\d{2})/g,
     PATTERN_FIELD_PHONE: /\(\d{2}\)\d{5}-\d{4}/g,
     PATTERN_FIELD_NUMBER: /[0-9]+/g,

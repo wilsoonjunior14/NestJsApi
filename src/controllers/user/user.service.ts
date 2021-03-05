@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './user.model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Constants } from '../../utils/Contansts';
 
 @Injectable()
 export class UserService { 
@@ -44,5 +45,12 @@ export class UserService {
 
     async comparePasswords(password, passwordEncrypted){
         return await bcrypt.compare(password, passwordEncrypted);
+    }
+
+    async getDataByToken(token){
+        if (!token){
+            return {};
+        }
+        return await this.jwtService.decode(token);
     }
 }

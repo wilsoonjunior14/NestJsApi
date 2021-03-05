@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { UserModule } from './user.module';
 import { MailService } from '../../utils/Mail.service';
 import { Utils } from '../../utils/Utils';
+import { LogsService } from '../logs/logs.service';
 const sinon = require('sinon');
 
 describe('UserController', () => {
@@ -12,6 +13,7 @@ describe('UserController', () => {
   let userService: UserService;
   let mailService: MailService;
   let utils: Utils;
+  let logService: LogsService;
 
   const MOCKED_USER = {
     name: "ABCED",
@@ -22,11 +24,22 @@ describe('UserController', () => {
     password: "12345"
   };
 
+  var REQUEST_MOCKED = {
+    headers: {
+      authorization: "Bearer abcde"
+    }
+  };
+
   beforeEach(async () => {
+    logService = new LogsService(null);
     userService = new UserService(null, null);
+    utils = new Utils(logService, userService);
     mailService = new MailService(null);
-    controller = new UserController(userService, mailService);
-    utils = new Utils();
+    controller = new UserController(userService, mailService, logService);
+    utils = new Utils(logService, userService);
+
+    sinon.stub(userService, 'getDataByToken').callsFake(() => {});
+    sinon.stub(logService, 'saveLog').callsFake(() => {});
   });
 
   it('should be defined', () => {
@@ -41,7 +54,7 @@ describe('UserController', () => {
 
   it('getAll', async () => {
     sinon.stub(userService, 'getAllEnabled').callsFake(() => [MOCKED_USER]);
-    const results = await controller.getAll();
+    const results = await controller.getAll(REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
@@ -49,7 +62,7 @@ describe('UserController', () => {
   it('getById Returns 500', async () => {
     const id = "";
     sinon.stub(userService, 'getById').rejects(new Error("id invalid"));
-    const results = await controller.getById(id);
+    const results = await controller.getById(id, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -57,7 +70,7 @@ describe('UserController', () => {
   it('getById', async () => {
     const id = "ascasca";
     sinon.stub(userService, 'getById').callsFake(() => MOCKED_USER);
-    const results = await controller.getById(id);
+    const results = await controller.getById(id, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
@@ -66,7 +79,7 @@ describe('UserController', () => {
     const id = "";
     sinon.stub(userService, 'getById').rejects(new Error("id invalid"));
     
-    const results = await controller.delete(id);
+    const results = await controller.delete(id, REQUEST_MOCKED);
     expect(results.status).toBe(500);
   });
 
@@ -75,12 +88,12 @@ describe('UserController', () => {
     sinon.stub(userService, 'getById').callsFake(() => MOCKED_USER);
     sinon.stub(userService, 'update').callsFake(() => MOCKED_USER);
     
-    const results = await controller.delete(id);
+    const results = await controller.delete(id, REQUEST_MOCKED);
     expect(results.status).toBe(200);
   });
 
   it('create Returns 500 when null user is provided', async () => {
-    const results = await controller.create(null);
+    const results = await controller.create(null, REQUEST_MOCKED);
     expect(results.status).toBe(500);
   });
 
@@ -89,7 +102,7 @@ describe('UserController', () => {
       email: "ABC@"
     };
 
-    const results = await controller.create(MOCKED_USER_WITHOUT_NAME);
+    const results = await controller.create(MOCKED_USER_WITHOUT_NAME, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -99,7 +112,7 @@ describe('UserController', () => {
       name: "ABCASKJDA"
     };
 
-    const results = await controller.create(MOCKED_USER_WITHOUT_EMAIL);
+    const results = await controller.create(MOCKED_USER_WITHOUT_EMAIL, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -110,7 +123,7 @@ describe('UserController', () => {
       email: "abc@gmail.com"
     };
 
-    const results = await controller.create(MOCKED_USER_WITHOUT_CPF);
+    const results = await controller.create(MOCKED_USER_WITHOUT_CPF, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -122,7 +135,7 @@ describe('UserController', () => {
       cpfCnpj: "000.000.000-00"
     };
 
-    const results = await controller.create(MOCKED_USER_WITHOUT_PHONE);
+    const results = await controller.create(MOCKED_USER_WITHOUT_PHONE, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -130,7 +143,7 @@ describe('UserController', () => {
   it('create Returns 500 when existing user with same email', async () => {
     sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
 
-    const results = await controller.create(MOCKED_USER);
+    const results = await controller.create(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -139,13 +152,13 @@ describe('UserController', () => {
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
     sinon.stub(userService, 'save').callsFake(() => MOCKED_USER);
 
-    const results = await controller.create(MOCKED_USER);
+    const results = await controller.create(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
 
   it('update Returns 500 when null user is provided', async () => {
-    const results = await controller.update(null);
+    const results = await controller.update(null, REQUEST_MOCKED);
     expect(results.status).toBe(500);
   });
 
@@ -156,7 +169,7 @@ describe('UserController', () => {
 
     const MOCKED_UPDATE_USER = Object.assign(MOCKED_USER, {id: "109238192i3jh1l23j"});
 
-    const results = await controller.update(MOCKED_UPDATE_USER);
+    const results = await controller.update(MOCKED_UPDATE_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
@@ -167,13 +180,13 @@ describe('UserController', () => {
 
     const MOCKED_UPDATE_USER = Object.assign(MOCKED_USER, {id: "109238192i3jh1l23j"});
 
-    const results = await controller.update(MOCKED_UPDATE_USER);
+    const results = await controller.update(MOCKED_UPDATE_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it('login Returns 500 when email is not informed', async () => {
-    const results = await controller.login({});
+    const results = await controller.login({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -183,7 +196,7 @@ describe('UserController', () => {
       email: "any@gmail.com"
     };
 
-    const results = await controller.login(MOCKED_USER);
+    const results = await controller.login(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -196,7 +209,7 @@ describe('UserController', () => {
 
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
 
-    const results = await controller.login(MOCKED_USER);
+    const results = await controller.login(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -212,7 +225,7 @@ describe('UserController', () => {
     sinon.stub(userService, 'findByQuery').callsFake(() => [FOUND_USER]);
     sinon.stub(userService, 'comparePasswords').callsFake(() => false);
 
-    const results = await controller.login(MOCKED_USER);
+    const results = await controller.login(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -229,20 +242,20 @@ describe('UserController', () => {
     sinon.stub(userService, 'getToken').callsFake(() => "1234567890");
     sinon.stub(userService, 'comparePasswords').callsFake(() => true);
 
-    const results = await controller.login(MOCKED_USER);
+    const results = await controller.login(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
     expect(results.data.access_token).toBeDefined();
   });
 
   it('tokenIsValid Returns 500 when payload is not provided', async () => {
-    const results = await controller.tokenIsValid(null);
+    const results = await controller.tokenIsValid(null, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it('tokenIsValid Returns 500 when access_token is not provided', async () => {
-    const results = await controller.tokenIsValid({});
+    const results = await controller.tokenIsValid({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -253,14 +266,14 @@ describe('UserController', () => {
     };
 
     sinon.stub(userService, 'checksIfTokenIsValid').callsFake(() => true);
-    const results = await controller.tokenIsValid(payload);
+    const results = await controller.tokenIsValid(payload, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
     expect(results.data.isValid).toBe(true);
   });
 
   it('recoveryPassword Returns 500 when email is not provided', async () => {
-    const results = await controller.recoveryPassword({});
+    const results = await controller.recoveryPassword({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -271,7 +284,7 @@ describe('UserController', () => {
     };
 
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
-    const results = await controller.recoveryPassword(MOCKED_USER);
+    const results = await controller.recoveryPassword(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -284,13 +297,13 @@ describe('UserController', () => {
     sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
     sinon.stub(userService, 'update').callsFake(() => {});
     sinon.stub(mailService, 'sendRecoveryPasswordMail').callsFake(() => {});
-    const results = await controller.recoveryPassword(MOCKED_USER);
+    const results = await controller.recoveryPassword(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
 
   it('validateCode Returns 500 when code is not provided', async () => {
-    const results = await controller.validateCode({});
+    const results = await controller.validateCode({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -300,7 +313,7 @@ describe('UserController', () => {
       verificationCode: "12345"
     };
 
-    const results = await controller.validateCode(data);
+    const results = await controller.validateCode(data, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -312,7 +325,7 @@ describe('UserController', () => {
     };
 
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
-    const results = await controller.validateCode(data);
+    const results = await controller.validateCode(data, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -324,14 +337,14 @@ describe('UserController', () => {
     };
 
     sinon.stub(userService, 'findByQuery').callsFake(() => [data]);
-    const results = await controller.validateCode(data);
+    const results = await controller.validateCode(data, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
     expect(results.data.validated).toBe(true);
   });
 
   it('udpatePassword Returns 500 when data is not provided', async () => {
-    const results = await controller.updatePassword({});
+    const results = await controller.updatePassword({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -344,7 +357,7 @@ describe('UserController', () => {
       password: "1234"
     };
 
-    const results = await controller.updatePassword(MOCKED_USER);
+    const results = await controller.updatePassword(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -357,7 +370,7 @@ describe('UserController', () => {
     };
 
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
-    const results = await controller.updatePassword(MOCKED_USER);
+    const results = await controller.updatePassword(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
@@ -371,7 +384,7 @@ describe('UserController', () => {
 
     sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
     sinon.stub(userService, 'update').callsFake(() => {});
-    const results = await controller.updatePassword(MOCKED_USER);
+    const results = await controller.updatePassword(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });

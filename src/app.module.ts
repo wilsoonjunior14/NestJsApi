@@ -15,6 +15,8 @@ import { ImmobileModule } from './controllers/immobile/immobile.module';
 import { LocalizationModule } from './controllers/localization/localization.module';
 import { ImmobileController } from './controllers/immobile/immobile.controller';
 import { LocalizationController } from './controllers/localization/localization.controller';
+import { LogsController } from './controllers/logs/logs.controller';
+import { LogsModule } from './controllers/logs/logs.module';
 
 @Module({
   imports: [
@@ -45,9 +47,10 @@ import { LocalizationController } from './controllers/localization/localization.
     RoleModule,
     UserModule,
     LocalizationModule,
-    ImmobileModule
+    ImmobileModule,
+    LogsModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, LogsController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {

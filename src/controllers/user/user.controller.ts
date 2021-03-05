@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Utils } from '../../utils/Utils';
 import { Constants } from '../../utils/Contansts';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../../utils/Mail.service';
+import { LogsService } from '../logs/logs.service';
 
 @Controller('user')
 export class UserController {
@@ -11,39 +12,41 @@ export class UserController {
     private utils;
 
     constructor(private UserService: UserService,
-        private mailService: MailService){
-        this.utils = new Utils();
+        private mailService: MailService,
+        private logsService: LogsService){
+        this.utils = new Utils(this.logsService, this.UserService);
     }
 
     @Get()
-    async getAll(){
+    async getAll(@Req() request){
         try{
             const users = await this.UserService.getAllEnabled();
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, users);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, users, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), err, request);
         }
     }
 
     @Get('/:id')
-    async getById(@Param("id") id: String){
+    async getById(@Param("id") id: String, @Req() request){
         try{
             const user = await this.UserService.getById(id);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, user);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, user, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), id, request);
         }
     }
 
     @Post()
-    async create(@Body() user){
+    async create(@Body() user, @Req() request){
         try{
 
             let validated = this.validateUser(user);
             if (validated.invalid){
-                return this.utils.getFailureMessage(
+                return await this.utils.getInternalServerError(
                     this.utils.buildMessage("Alguns erros detectados na criação de usuário.", validated.messages),
-                    user
+                    user,
+                    request
                 );
             }
 
@@ -55,27 +58,28 @@ export class UserController {
             const existingUsers = await this.UserService.findByQuery(query);
 
             if (existingUsers.length > 0){
-                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_USER, []);
+                return await this.utils.getInternalServerError(Constants.INVALID_EXISTING_USER, user, request);
             }
 
             user.password = await this.utils.getsNewPassword(user.password);
 
             const createdUser = await this.UserService.save(user);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, createdUser);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, createdUser, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), user, request);
         }
     }
 
     @Put()
-    async update(@Body() user){
+    async update(@Body() user, @Req() request){
         try{
 
             let validated = this.validateUser(user);
             if (validated.invalid){
-                return this.utils.getFailureMessage(
+                return await this.utils.getInternalServerError(
                     this.utils.buildMessage("Alguns erros detectados na alteração de usuário.", validated.messages),
-                    user
+                    user,
+                    request
                 );
             }
 
@@ -90,35 +94,35 @@ export class UserController {
             const existingUsers = await this.UserService.findByQuery(query);
 
             if (existingUsers.length > 0){
-                return this.utils.getFailureMessage(Constants.INVALID_EXISTING_USER, []);
+                return await this.utils.getInternalServerError(Constants.INVALID_EXISTING_USER, user, request);
             }
 
             let oldUser = await this.UserService.getById(user.id);
             Object.assign(oldUser, user);
 
             const results = await this.UserService.update(oldUser);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), err, request);
         }
     }
 
     @Delete('/:id')
-    async delete(@Param('id') id: String){
+    async delete(@Param('id') id: String, @Req() request){
         try{
 
             let oldUser = await this.UserService.getById(id);
             oldUser.deleted = true;
 
             const results = await this.UserService.update(oldUser);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, results);            
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);            
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), id, request);
         }
     }
 
     @Post('/login')
-    async login(@Body() user){
+    async login(@Body() user, @Req() request){
         try{
 
             if (!user.email || 
@@ -126,7 +130,7 @@ export class UserController {
                 user.email.length > 100 ||
                 !new RegExp(Constants.PATTERN_FIELD_EMAIL).test(user.email) ||
                 user.password.length > 100){
-                    return this.utils.getFailureMessage(Constants.INVALID_LOGIN_FIELDS, user);
+                    return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_FIELDS, user, request);
             }
 
             const query = {
@@ -138,7 +142,7 @@ export class UserController {
             const foundUsers = await this.UserService.findByQuery(query);
 
             if (foundUsers.length === 0){
-                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, user);
+                return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_USER_NOT_FOUND, user, request);
             }
 
             const loggedUser = foundUsers[0];
@@ -146,45 +150,45 @@ export class UserController {
             const arePasswordsEquals = await this.UserService.comparePasswords(user.password, loggedUser.password);
 
             if (!arePasswordsEquals){
-                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_PASSWORD_PROVIDED, user);
+                return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_PASSWORD_PROVIDED, user, request);
             }
 
             const token = await this.UserService.getToken(this.getPlainObject(loggedUser));
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, {
                 access_token: token
-            });
+            }, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), user);
+            return await this.utils.getInternalServerError(err.toString(), user, request);
         }
     }
 
     @Post('/token/isValid')
-    async tokenIsValid(@Body() payload){
+    async tokenIsValid(@Body() payload, @Req() request){
         try{
 
             if (!payload ||
                 !payload.access_token){
-                    return this.utils.getFailureMessage(Constants.INVALID_TOKEN_INVALID, {});
+                    return await this.utils.getInternalServerError(Constants.INVALID_TOKEN_INVALID, payload, request);
             }
 
             const results = await this.UserService.checksIfTokenIsValid(payload.access_token);
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, {
                 isValid: results
-            });
+            }, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), payload);
+            return await this.utils.getInternalServerError(err.toString(), payload, request);
         }
     }
 
     @Post('/recoveryPassword')
-    public async recoveryPassword(@Body() user){
+    public async recoveryPassword(@Body() user, @Req() request){
         try{
             
             if (!user ||
                 !user.email ||
                 user.email.length > 100){
-                    return this.utils.getFailureMessage(Constants.INVALID_RECOVERY_EMAIL, {});
+                    return await this.utils.getInternalServerError(Constants.INVALID_RECOVERY_EMAIL, user, request);
             }
 
             const query = {
@@ -197,7 +201,7 @@ export class UserController {
             const foundUsers = await this.UserService.findByQuery(query);
 
             if (foundUsers.length === 0){
-                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+                return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_USER_NOT_FOUND, user, request);
             }
 
             const foundUser = foundUsers[0];
@@ -210,24 +214,24 @@ export class UserController {
 
             await this.mailService.sendRecoveryPasswordMail(foundUser);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {});
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, {}, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), err);
+            return await this.utils.getInternalServerError(err.toString(), err, request);
         }
     }
 
     @Post('/validateCode')
-    public async validateCode(@Body() code){
+    public async validateCode(@Body() code, @Req() request){
         try{
 
             if (!code ||
                 !code.verificationCode){
-                    return this.utils.getFailureMessage("Erro! Código de verificação não informado.", {});
+                    return await this.utils.getInternalServerError("Erro! Código de verificação não informado.", code, request);
             }
 
             if (!code.email || 
                 code.email.length > 100){
-                    return this.utils.getFailureMessage(Constants.INVALID_RECOVERY_EMAIL, {});
+                    return await this.utils.getInternalServerError(Constants.INVALID_RECOVERY_EMAIL, code, request);
             }
 
             const query = {
@@ -241,27 +245,27 @@ export class UserController {
             const foundUsers = await this.UserService.findByQuery(query);
 
             if (foundUsers.length === 0){
-                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+                return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
             }
 
-            return this.utils.getSuccessMessage("Validação do código de verificação realizada com sucesso!", {
+            return await this.utils.getResponse("Validação do código de verificação realizada com sucesso!", {
                 validated: true
-            });
+            }, request);
 
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), code, request);
         }
     }
 
     @Put('/updatePassword')
-    public async updatePassword(@Body() user){
+    public async updatePassword(@Body() user, @Req() request){
         try{
 
             if (!user ||
                 !user.email ||
                 !user.verificationCode || 
                 !user.password){
-                    return this.utils.getFailureMessage("Email do usuário ou código de verificação não informados!", {});
+                    return await this.utils.getInternalServerError("Email do usuário ou código de verificação não informados!", user, request);
             }
 
             if (!user.email ||
@@ -269,7 +273,7 @@ export class UserController {
                 !new RegExp(Constants.PATTERN_FIELD_EMAIL).test(user.email)){
                     const emailNameField = "Email inválido!";
                     const message = this.utils.buildMessage(emailNameField, Constants.INVALID_FIELD_100_CHARACTERS, Constants.INVALID_FIELD_EMPTY, Constants.INVALID_PATTERN_FIELD_WITHOUT_SPECIAL_CHARACTERS);
-                    return this.utils.getFailureMessage(message, {});
+                    return await this.utils.getInternalServerError(message, user, request);
             }
 
             const query = {
@@ -283,7 +287,7 @@ export class UserController {
             const foundUsers = await this.UserService.findByQuery(query);
 
             if (foundUsers.length === 0){
-                return this.utils.getFailureMessage(Constants.INVALID_LOGIN_USER_NOT_FOUND, {});
+                return await this.utils.getInternalServerError(Constants.INVALID_LOGIN_USER_NOT_FOUND, user, request);
             }
 
             let oldUser = foundUsers[0];
@@ -294,9 +298,9 @@ export class UserController {
 
             await this.UserService.update(oldUser);
 
-            return this.utils.getSuccessMessage(Constants.SUCCESS_MESSAGE_OPERATION, {});
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, oldUser, request);
         } catch(err){
-            return this.utils.getFailureMessage(err.toString(), {});
+            return await this.utils.getInternalServerError(err.toString(), {}, request);
         }
     }
 
