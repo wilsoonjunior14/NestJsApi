@@ -41,7 +41,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "COMMON",
+									"value": "ABCD",
 									"type": "text"
 								}
 							]
@@ -201,7 +201,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"_id\": \"60313c15c0970d335fb27067\",\n    \"description\": \"COMMON COMMON\"\n}",
+							"raw": "{\n    \"_id\": \"60399f8feebfa28d18e569a5\",\n    \"description\": \"COMMON COMMON\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -238,7 +238,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "FIRSTGROUP",
+									"value": "abcd",
 									"type": "text"
 								}
 							]
@@ -359,12 +359,12 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "GROUP DESCRIPTION UPDATED",
+									"value": "abcd",
 									"type": "text"
 								},
 								{
-									"key": "id",
-									"value": "603393717b4c494a03ea5eb1",
+									"key": "_id",
+									"value": "6039a045dea9ab8d5b77968a",
 									"type": "text"
 								}
 							],
@@ -397,6 +397,16 @@
 				{
 					"name": "GET /user",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ4OTQwOTgsImV4cCI6MTYxNDk4MDQ5OH0.-j6TnCOWojHegdFEdi_aJ_h6lf-BMe8BTxdoyb1clb4",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -417,37 +427,26 @@
 				{
 					"name": "POST /user",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSsO6bmlvciIsImVtYWlsIjoiZnJhbndqQGdtYWlsLmNvbSIsImNwZkNucGoiOiIxMjMuMTIzLjEyMy0yMyIsImRlbGV0ZWQiOmZhbHNlLCJwaG9uZSI6Iig4OCk5OTkyNC0xNDkyIiwiaWF0IjoxNjE0NjI3MTIwLCJleHAiOjE2MTQ3MTM1MjB9.p5jLPDdamrXUuKXejQFd2BYvxPMhB_CKxAhTmfm4wtc",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "name",
-									"value": "Ana de Sousa Rodrigues",
-									"type": "text"
-								},
-								{
-									"key": "email",
-									"value": "ana@gmail.com",
-									"type": "text"
-								},
-								{
-									"key": "phone",
-									"value": "(88)99924-1492",
-									"type": "text"
-								},
-								{
-									"key": "cpfCnpj",
-									"value": "123.123.123-23",
-									"type": "text"
-								},
-								{
-									"key": "group",
-									"value": "602c3c817e5df60b5e7fb3a2",
-									"type": "text"
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Francisco Wilson Rodrigues Jr\",\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"cpfCnpj\": \"038.192.773-31\",\n    \"phone\": \"(88)99924-1492\",\n    \"password\": \"12345\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
 							"raw": "http://localhost:3000/user",
@@ -467,10 +466,20 @@
 				{
 					"name": "GET /user/:id",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSsO6bmlvciIsImVtYWlsIjoiZnJhbndqQGdtYWlsLmNvbSIsImNwZkNucGoiOiIxMjMuMTIzLjEyMy0yMyIsImRlbGV0ZWQiOmZhbHNlLCJwaG9uZSI6Iig4OCk5OTkyNC0xNDkyIiwiaWF0IjoxNjE0NjI3NDgwLCJleHAiOjE2MTQ3MTM4ODB9.dKyUbrxxN1g-PxPXs9bGGWrfB_vvVwKzFv0CAd7q-Tg",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/user/603454a0b2a0215d9b57c6ed",
+							"raw": "http://localhost:3000/user/603d41cf5b98b8aa3e271bae",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -478,7 +487,7 @@
 							"port": "3000",
 							"path": [
 								"user",
-								"603454a0b2a0215d9b57c6ed"
+								"603d41cf5b98b8aa3e271bae"
 							]
 						},
 						"description": "Gets an single instance of user"
@@ -558,6 +567,372 @@
 							]
 						},
 						"description": "Updates a single entity of user"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"password\": \"abcdef\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/user/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"login"
+							]
+						},
+						"description": "Makes login based on user email"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /user/token/isValid",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSsO6bmlvciIsImVtYWlsIjoiZnJhbndqQGdtYWlsLmNvbSIsImNwZkNucGoiOiIxMjMuMTIzLjEyMy0yMyIsImRlbGV0ZWQiOmZhbHNlLCJwaG9uZSI6Iig4OCk5OTkyNC0xNDkyIiwiaWF0IjoxNjE0NTI2ODY1LCJleHAiOjE2MTQ2MTMyNjV9.uYkMQYtymHW27eZB5qc3F9b4TNUkllsCeH_gnl9iENk\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/user/token/isValid",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"token",
+								"isValid"
+							]
+						},
+						"description": "Checks if access_token still is valid"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /user/recoveryPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"wjunior_msn@hotmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/user/recoveryPassword",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"recoveryPassword"
+							]
+						},
+						"description": "recoveries password of user sending email with new code to your email"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /user/validateCode",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"verificationCode\": \"8235\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/user/validateCode",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"validateCode"
+							]
+						},
+						"description": "Validates verification code of a single user for to update password properly"
+					},
+					"response": []
+				},
+				{
+					"name": "/PUT updatePassword",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"password\": \"abcdef\",\n    \"verificationCode\": \"8235\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/user/updatePassword",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"updatePassword"
+							]
+						},
+						"description": "updates a password of user"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Immobile",
+			"item": [
+				{
+					"name": "POST /immobile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Ponto Comercial - Centro de Ibiapina/CE\",\n    \"user\": {\n        \"_id\": \"603d41cf5b98b8aa3e271bae\"\n    },\n    \"localization\": {\n        \"address\": \"Av. Deputado Álvaro Soares\",\n        \"city\": \"Ibiapina/CE\",\n        \"neighborhood\": \"Centro\",\n        \"number\": 1000,\n        \"zipCode\": \"62360-000\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/immobile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile"
+							]
+						},
+						"description": "Creates a new immobile instance"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /immobile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ4OTQwOTgsImV4cCI6MTYxNDk4MDQ5OH0.-j6TnCOWojHegdFEdi_aJ_h6lf-BMe8BTxdoyb1clb4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/immobile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile"
+							]
+						},
+						"description": "Gets all enabled immobiles"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /immobile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"_id\": \"603fe48fb8667cc52bcd2afb\",\n    \"name\": \"Ponto Comercial, Loja da Fabiana - Ibiapina/CE\",\n    \"user\": {\n        \"_id\": \"603d41cf5b98b8aa3e271bae\"\n    },\n    \"localization\": {\n        \"_id\": \"603fe48fb8667cc52bcd2afa\",\n        \"address\": \"Av. Deputado Álvaro Soares\",\n        \"city\": \"Ibiapina\",\n        \"number\": 1000,\n        \"neighborhood\": \"Centro\",\n        \"zipCode\": \"62360-000\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/immobile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile"
+							]
+						},
+						"description": "Updates a single entity"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /immobile/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/immobile/603f98f07fe5c7c40e43038b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile",
+								"603f98f07fe5c7c40e43038b"
+							]
+						},
+						"description": "Gets an single entity"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /immobile/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/immobile/603f98f07fe5c7c40e43038b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile",
+								"603f98f07fe5c7c40e43038b"
+							]
+						},
+						"description": "Deletes logically an entity"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /immobile/addClient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ4OTQwOTgsImV4cCI6MTYxNDk4MDQ5OH0.-j6TnCOWojHegdFEdi_aJ_h6lf-BMe8BTxdoyb1clb4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"_id\": \"604155e6e8111c17b70d64f8\",\n    \"client\": {\n        \"_id\": \"603454a0b2a0215d9b57c6ed\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/immobile/addClient",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile",
+								"addClient"
+							]
+						},
+						"description": "adds a client to immobile"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /immobile/removeClient",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ4OTQwOTgsImV4cCI6MTYxNDk4MDQ5OH0.-j6TnCOWojHegdFEdi_aJ_h6lf-BMe8BTxdoyb1clb4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"_id\": \"604155e6e8111c17b70d64f8\",\n    \"client\": {\n        \"_id\": \"603454a0b2a0215d9b57c6ed\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/immobile/removeClient",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"immobile",
+								"removeClient"
+							]
+						},
+						"description": "Removes a client of immobile"
 					},
 					"response": []
 				}

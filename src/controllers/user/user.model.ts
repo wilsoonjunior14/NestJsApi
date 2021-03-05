@@ -36,6 +36,13 @@ export const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group",
         default: ""
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    verificationCode: {
+        type: String,
     }
 
 });
@@ -49,5 +56,7 @@ export interface User extends mongoose.Document {
     cpfCnpj: string,
     createdAt: Date,
     updatedAt: Date,
-    group: any
+    group: any,
+    password: string,
+    verificationCode: string
 }

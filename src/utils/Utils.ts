@@ -1,4 +1,5 @@
 import { Constants } from './Contansts';
+import * as bcrypt from 'bcrypt';
 export class Utils {
 
     /**
@@ -41,6 +42,29 @@ export class Utils {
     buildMessage(field: String, ...messages: Array<String>){
         let unifiedMessages = messages.join("\n");
         return field + Constants.INVALID_COMMON_MESSAGE + "\n" + unifiedMessages;
+    }
+
+    /**
+     * Generates a new password to be hashed.
+     * 
+     * @param password Password to be hashed.
+     * @returns String recently hashed.
+     */
+    async getsNewPassword(password: String){
+        return await bcrypt.hash(password, 10); 
+    }
+
+    getsTokenByHeader(header){
+        return header.split("Bearer ")[1];
+    }
+
+    getRandomNumber() : String{
+        let code = "";
+        for (var i=0; i<4; i++){
+            code = code + "" + Math.round(Math.random()*10);
+        }
+
+        return code;
     }
 
 }

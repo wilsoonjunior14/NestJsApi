@@ -3,23 +3,30 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserModule } from './user.module';
+import { MailService } from '../../utils/Mail.service';
+import { Utils } from '../../utils/Utils';
 const sinon = require('sinon');
 
 describe('UserController', () => {
   let controller: UserController;
   let userService: UserService;
+  let mailService: MailService;
+  let utils: Utils;
 
   const MOCKED_USER = {
     name: "ABCED",
     email: "abc@gmail.com",
     phone: "(88)88888-8888",
     cpfCnpj: "123.123.123-12",
-    group: "1231231"
+    group: "1231231",
+    password: "12345"
   };
 
   beforeEach(async () => {
-    userService = new UserService(null);
-    controller = new UserController(userService);
+    userService = new UserService(null, null);
+    mailService = new MailService(null);
+    controller = new UserController(userService, mailService);
+    utils = new Utils();
   });
 
   it('should be defined', () => {
@@ -163,6 +170,210 @@ describe('UserController', () => {
     const results = await controller.update(MOCKED_UPDATE_USER);
 
     expect(results.status).toBe(500);
+  });
+
+  it('login Returns 500 when email is not informed', async () => {
+    const results = await controller.login({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it('login Returns 500 when password is not informed', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com"
+    };
+
+    const results = await controller.login(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('login Returns 500 when user is not found', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com",
+      password: "12345"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => []);
+
+    const results = await controller.login(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('login Returns 500 when password is invalid', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com",
+      password: "12345"
+    };
+
+    const FOUND_USER = Object.assign(MOCKED_USER, {password: utils.getsNewPassword("1234519283019283")});
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => [FOUND_USER]);
+    sinon.stub(userService, 'comparePasswords').callsFake(() => false);
+
+    const results = await controller.login(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('login', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com",
+      password: "12345"
+    };
+
+    const FOUND_USER = Object.assign(MOCKED_USER, {password: utils.getsNewPassword("12345")});
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => [FOUND_USER]);
+    sinon.stub(userService, 'getToken').callsFake(() => "1234567890");
+    sinon.stub(userService, 'comparePasswords').callsFake(() => true);
+
+    const results = await controller.login(MOCKED_USER);
+
+    expect(results.status).toBe(200);
+    expect(results.data.access_token).toBeDefined();
+  });
+
+  it('tokenIsValid Returns 500 when payload is not provided', async () => {
+    const results = await controller.tokenIsValid(null);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('tokenIsValid Returns 500 when access_token is not provided', async () => {
+    const results = await controller.tokenIsValid({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it('tokenIsValid', async () => {
+    const payload = {
+      access_token: "1234567890"
+    };
+
+    sinon.stub(userService, 'checksIfTokenIsValid').callsFake(() => true);
+    const results = await controller.tokenIsValid(payload);
+
+    expect(results.status).toBe(200);
+    expect(results.data.isValid).toBe(true);
+  });
+
+  it('recoveryPassword Returns 500 when email is not provided', async () => {
+    const results = await controller.recoveryPassword({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it('recoveryPassword Returns 500 when user is not found', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => []);
+    const results = await controller.recoveryPassword(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('recoveryPassword', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
+    sinon.stub(userService, 'update').callsFake(() => {});
+    sinon.stub(mailService, 'sendRecoveryPasswordMail').callsFake(() => {});
+    const results = await controller.recoveryPassword(MOCKED_USER);
+
+    expect(results.status).toBe(200);
+  });
+
+  it('validateCode Returns 500 when code is not provided', async () => {
+    const results = await controller.validateCode({});
+
+    expect(results.status).toBe(500);
+  });
+
+  it('validateCode Returns 500 when email is not provided', async () => {
+    const data = {
+      verificationCode: "12345"
+    };
+
+    const results = await controller.validateCode(data);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('validateCode Returns 500 when user is not found', async () => {
+    const data = {
+      verificationCode: "12345",
+      email: "any@gmail.com"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => []);
+    const results = await controller.validateCode(data);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('validateCode', async () => {
+    const data = {
+      verificationCode: "12345",
+      email: "any@gmail.com"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => [data]);
+    const results = await controller.validateCode(data);
+
+    expect(results.status).toBe(200);
+    expect(results.data.validated).toBe(true);
+  });
+
+  it('udpatePassword Returns 500 when data is not provided', async () => {
+    const results = await controller.updatePassword({});
+
+    expect(results.status).toBe(500);
+  });
+
+
+  it('udpatePassword Returns 500 when email is invalid', async () => {
+    const MOCKED_USER = {
+      email: "any2@gmail.com",
+      verificationCode: "1234",
+      password: "1234"
+    };
+
+    const results = await controller.updatePassword(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('udpatePassword Returns 500 when user is not found', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com",
+      verificationCode: "1234",
+      password: "1234"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => []);
+    const results = await controller.updatePassword(MOCKED_USER);
+
+    expect(results.status).toBe(500);
+  });
+
+  it('udpatePassword', async () => {
+    const MOCKED_USER = {
+      email: "any@gmail.com",
+      verificationCode: "1234",
+      password: "1234"
+    };
+
+    sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
+    sinon.stub(userService, 'update').callsFake(() => {});
+    const results = await controller.updatePassword(MOCKED_USER);
+
+    expect(results.status).toBe(200);
   });
 
 });
