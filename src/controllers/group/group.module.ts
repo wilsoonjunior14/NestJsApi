@@ -12,6 +12,7 @@ import { UserModule } from '../user/user.module';
       LogsModule,
       UserModule
   ],
+  exports: [GroupService],
   controllers: [GroupController],
   providers: [GroupService],
 })

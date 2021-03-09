@@ -2,11 +2,13 @@ import { Constants } from './Contansts';
 import * as bcrypt from 'bcrypt';
 import { LogsService } from '../controllers/logs/logs.service';
 import { UserService } from '../controllers/user/user.service';
+import { GroupService } from '../controllers/group/group.service';
 
 export class Utils {
 
     constructor(private logsService: LogsService,
-        private userService: UserService){
+        private userService: UserService,
+        private groupService: GroupService){
     }
 
     async getInternalServerError(message: String, data: any, request: any){
@@ -66,6 +68,24 @@ export class Utils {
         }
 
         return code;
+    }
+
+    async userHasPermissionForAction(request, role){
+        let checkPermissions = {
+            invalid: false,
+            message: "",
+            currentUser: {}
+        };
+
+        const currentUser = await this.userService.getDataByToken(this.getsTokenByHeader(request.headers.authorization));
+        const hasPermissionForThisAction = await this.groupService.hasPermission(currentUser["group"], role);
+        if (!hasPermissionForThisAction){
+            checkPermissions.invalid = true;
+            checkPermissions.message = "Você não tem permissão para executar essa operação!";
+        }
+
+        checkPermissions.currentUser = currentUser;
+        return checkPermissions;
     }
 
 }

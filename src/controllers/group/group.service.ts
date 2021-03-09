@@ -49,4 +49,19 @@ export class GroupService {
         return await this.groupModel.updateOne({_id: oldId}, group);
     }
 
+    async hasPermission(groupId, role) : Promise<boolean> {
+        const allGroups = await this.getEnabledGroups();
+        const foundedGroups = allGroups.filter((groupItem) => {return groupItem._id.toString() === groupId});
+
+        if (foundedGroups.length === 0){
+            return false;
+        }
+
+        const foundGroup = foundedGroups[0];
+
+        return foundGroup.description === "ADMIN" || foundGroup.roles.some((roleItem) => {
+            return roleItem.description === role;
+        });
+    }
+
 }

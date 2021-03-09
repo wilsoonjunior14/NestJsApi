@@ -24,14 +24,18 @@ describe('GroupController', () => {
     }
   };
 
+  var MOCKED_CURRENT_USER = {
+    group: ""
+  };
+
   beforeEach(async () => {
     service = new GroupService(null);
     logService = new LogsService(null);
     userService = new UserService(null, null);
-    utils = new Utils(logService, userService);
+    utils = new Utils(logService, userService, service);
     controller = new GroupController(service, logService, userService);
 
-    sinon.stub(userService, 'getDataByToken').callsFake(() => {});
+    sinon.stub(userService, 'getDataByToken').callsFake(() => MOCKED_CURRENT_USER);
     sinon.stub(logService, 'saveLog').callsFake(() => {});
   });
 
@@ -46,6 +50,7 @@ describe('GroupController', () => {
   });
 
   it('getEnabledGroups', async () => {
+    givenUserWithPermission();
     sinon.stub(service, "getEnabledGroups").callsFake(() => [MOCKED_GROUP]);
     var groups = await controller.getEnabledGroups(REQUEST_MOCKED);
 
@@ -55,6 +60,7 @@ describe('GroupController', () => {
   });
 
   it("getById", async () => {
+    givenUserWithPermission();
     var id = "120398102938";
 
     sinon.stub(service, "getById").callsFake(() => MOCKED_GROUP);
@@ -65,18 +71,28 @@ describe('GroupController', () => {
   });
 
   it("getById Returns 500", async () => {
+    givenUserWithPermission();
     var response = await controller.getById(null, REQUEST_MOCKED);
 
     expect(response.status).toBe(500);   
   });
 
   it("createGroup Returns 500", async () => {
+    givenUserWithPermission();
+    var response = await controller.createGroup(null, REQUEST_MOCKED);
+
+    expect(response.status).toBe(500);
+  });
+
+  it("createGroup Returns 500 when user has not permission", async () => {
+    givenUserWithoutPermission();
     var response = await controller.createGroup(null, REQUEST_MOCKED);
 
     expect(response.status).toBe(500);
   });
 
   it("createGroup", async () => {
+    givenUserWithPermission();
     sinon.stub(service, 'save').callsFake(() => MOCKED_GROUP);
     sinon.stub(service, 'findByQuery').callsFake(() => []);
 
@@ -85,7 +101,15 @@ describe('GroupController', () => {
     expect(response.status).toBe(200);
   });
 
-  it("updateGroup Returns 500", async () => {
+  it("updateGroup Returns 500 when data provided is null", async () => {
+    sinon.stub(service, 'hasPermission').callsFake(() => true);
+    var response = await controller.updateGroup(null, REQUEST_MOCKED);
+
+    expect(response.status).toBe(500);
+  });
+
+  it("updateGroup Returns 500 when user has not permission", async () => {
+    givenUserWithoutPermission();
     var response = await controller.updateGroup(null, REQUEST_MOCKED);
 
     expect(response.status).toBe(500);
@@ -95,6 +119,7 @@ describe('GroupController', () => {
     sinon.stub(service, 'update').callsFake(() => MOCKED_GROUP);
     sinon.stub(service, 'getById').callsFake(() => MOCKED_GROUP);
     sinon.stub(service, 'findByQuery').callsFake(() => []);
+    sinon.stub(service, 'hasPermission').callsFake(() => true);
 
     var MOCKED_UPDATED_GROUP = Object.assign(MOCKED_GROUP, {_id: "1kjashdkajs"});
 
@@ -105,7 +130,8 @@ describe('GroupController', () => {
 
   it("deleteGroup", async () => {
     var id = "alksdjal";
-
+    givenUserWithPermission();
+  
     sinon.stub(service, "getById").callsFake(() => MOCKED_GROUP);
     sinon.stub(service, "update").callsFake(() => MOCKED_GROUP);
     var response = await controller.deleteGroup(id, REQUEST_MOCKED);
@@ -113,11 +139,70 @@ describe('GroupController', () => {
     expect(response.status).toBe(200);
   });
 
-  it("deleteGroup Returns 500", async () => {
+  it("deleteGroup Returns 500 when null id is provided", async () => {
+    givenUserWithPermission();
     var response = await controller.deleteGroup(null, REQUEST_MOCKED);
 
     expect(response.status).toBe(500);
   });
+
+  it("deleteGroup Returns 500 when user that performing this action has not permission", async () => {
+    givenUserWithoutPermission();
+    var response = await controller.deleteGroup(null, REQUEST_MOCKED);
+
+    expect(response.status).toBe(500);
+  });
+
+  it("insertRoleIntoGroup Returns 500 when user has not permission", async() => {
+    givenUserWithoutPermission();
+
+    const results = await controller.insertRoleIntoGroup({}, REQUEST_MOCKED);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("insertRoleIntoGroup Returns 500 when _id is not provided", async() => {
+    givenUserWithPermission();
+
+    const results = await controller.insertRoleIntoGroup({}, REQUEST_MOCKED);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("insertRoleIntoGroup Returns 500 when roles is not provided", async() => {
+    givenUserWithPermission();
+    const group = {
+      _id: "asdlkjasl"
+    };
+
+    const results = await controller.insertRoleIntoGroup(group, REQUEST_MOCKED);
+
+    expect(results.status).toBe(500);
+  });
+
+  it("insertRoleIntoGroup", async() => {
+    givenUserWithPermission();
+    const group = {
+      _id: "asdlkjasl",
+      roles: [
+        {_id: "laksjdla"}
+      ]
+    };
+    sinon.stub(service, 'update').callsFake(() => group);
+    sinon.stub(service, 'getById').callsFake(() => group);
+
+    const results = await controller.insertRoleIntoGroup(group, REQUEST_MOCKED);
+
+    expect(results.status).toBe(200);
+  });
+
+  function givenUserWithPermission(){
+    sinon.stub(service, 'hasPermission').callsFake(() => true);
+  };
+
+  function givenUserWithoutPermission(){
+    sinon.stub(service, 'hasPermission').callsFake(() => false);
+  };
 
 
 });

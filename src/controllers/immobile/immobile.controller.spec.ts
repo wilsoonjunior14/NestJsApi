@@ -6,6 +6,8 @@ import { ImmobileService } from './immobile.service';
 import { ImmobileModule } from './immobile.module';
 import { LogsService } from '../logs/logs.service';
 import { Utils } from '../../utils/Utils';
+import { GroupService } from '../group/group.service';
+import { Group } from '../../../dist/controllers/group/group.model';
 const sinon = require('sinon');
 
 describe('ImmobileController', () => {
@@ -13,6 +15,7 @@ describe('ImmobileController', () => {
   let immobileService: ImmobileService;
   let userService: UserService;
   let logService: LogsService;
+  let groupService: GroupService;
   let utils: Utils;
   let localizationService: LocalizationService;
 
@@ -24,16 +27,21 @@ describe('ImmobileController', () => {
     }
   };
 
+  var CURRENT_USER_MOCKED = {
+    group: ""
+  };
+
   beforeEach(async () => {
     userService = new UserService(null, null);
     localizationService = new LocalizationService(null);
     logService = new LogsService(null);
     userService = new UserService(null, null);
-    utils = new Utils(logService, userService);
+    groupService = new GroupService(null);
+    utils = new Utils(logService, userService, groupService);
     immobileService = new ImmobileService(null);
 
-    controller = new ImmobileController(immobileService, localizationService, userService, logService);
-    sinon.stub(userService, 'getDataByToken').callsFake(() => {});
+    controller = new ImmobileController(immobileService, localizationService, userService, logService, groupService);
+    sinon.stub(userService, 'getDataByToken').callsFake(() => CURRENT_USER_MOCKED);
     sinon.stub(logService, 'saveLog').callsFake(() => {});
   });
 
@@ -71,6 +79,7 @@ describe('ImmobileController', () => {
   });
 
   it('delete Returns 500 when id provided is null', async () => {
+    givenUserWithPermission();
     sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
 
     const results = await controller.delete(null, REQUEST_MOCKED);
@@ -79,6 +88,7 @@ describe('ImmobileController', () => {
   });
 
   it('delete Returns 500 when id has empty spaces on your building', async () => {
+    givenUserWithPermission();
     const _id = "    ";
 
     const results = await controller.delete(_id, REQUEST_MOCKED);
@@ -87,6 +97,7 @@ describe('ImmobileController', () => {
   });
 
   it('delete', async () => {
+    givenUserWithPermission();
     const _id = "asldhalskdal";
 
     sinon.stub(immobileService, 'getById').callsFake(() => MOCKED_IMMOBILE);
@@ -97,6 +108,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when name of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutName();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -105,6 +117,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when user of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutUser();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -113,6 +126,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when user _id is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutUser_Id();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -121,6 +135,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when localization of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -129,6 +144,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when address of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutAddressOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -137,6 +153,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when neighborhood of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutNeighborhoodOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -145,6 +162,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when city of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutCityOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -153,6 +171,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when zipCode of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutZipCodeOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -161,6 +180,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when number of immobile is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithoutNumberOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -169,6 +189,7 @@ describe('ImmobileController', () => {
   });
 
   it('create Returns 500 when invalid number is', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobileWithInvalidNumberOfLocalization();
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
@@ -177,6 +198,7 @@ describe('ImmobileController', () => {
   });
 
   it('create', async () => {
+    givenUserWithPermission();
     const immobileToBeCreated = givenImmobile();
     const localizationWithId = {
       _id: "12313"
@@ -191,6 +213,7 @@ describe('ImmobileController', () => {
   });
 
   it('update Returns 500 when id is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeUpdated = givenImmobile();
 
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
@@ -199,6 +222,7 @@ describe('ImmobileController', () => {
   });
 
   it('update Returns 500 when localization id is not provided', async () => {
+    givenUserWithPermission();
     const immobileToBeUpdated = givenImmobileWithId();
 
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
@@ -207,6 +231,7 @@ describe('ImmobileController', () => {
   });
 
   it('update Returns 500 when localization address is not provided', async () => {
+    givenUserWithPermission();
     var immobileToBeUpdated = givenImmobileWithoutAddressOfLocalization();
     immobileToBeUpdated["_id"] = "askdja";
     immobileToBeUpdated.localization["_id"] = "asdasd";
@@ -217,6 +242,7 @@ describe('ImmobileController', () => {
   });
 
   it("update", async () => {
+    givenUserWithPermission();
     var immobileToBeUpdated = givenImmobileWithId();
     immobileToBeUpdated.localization["_id"] = "akjsdghk";
 
@@ -230,6 +256,7 @@ describe('ImmobileController', () => {
   });
 
   it("update Returns 500 when localization id is invalid", async () => {
+    givenUserWithPermission();
     var immobileToBeUpdated = givenImmobileWithId();
     immobileToBeUpdated.localization["_id"] = "akjsdghk";
 
@@ -240,18 +267,21 @@ describe('ImmobileController', () => {
   });
 
   it("addClient Returns 500 when none data is provided", async () => {
+    givenUserWithPermission();
     const results = await controller.addClient(null, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it("addClient Returns 500 when none _id is provided", async () => {
+    givenUserWithPermission();
     const results = await controller.addClient({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it("addClient Returns 500 when client is not provided", async () => {
+    givenUserWithPermission();
     const immobile = {
       _id: "abc"
     };
@@ -262,6 +292,7 @@ describe('ImmobileController', () => {
   });
 
   it("addClient Returns 500 when client _id is not provided", async () => {
+    givenUserWithPermission();
     const immobile = {
       _id: "abc",
       client: {
@@ -275,6 +306,7 @@ describe('ImmobileController', () => {
   });
 
   it("addClient", async () => {
+    givenUserWithPermission();
     const immobile = {
       _id: "abc",
       client: {
@@ -290,18 +322,21 @@ describe('ImmobileController', () => {
   });
 
   it("addClient Returns 500 when none data is provided", async () => {
+    givenUserWithPermission();
     const results = await controller.removeClient(null, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it("addClient Returns 500 when none _id is provided", async () => {
+    givenUserWithPermission();
     const results = await controller.removeClient({}, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it("addClient Returns 500 when client is not provided", async () => {
+    givenUserWithPermission();
     const immobile = {
       _id: "abc"
     };
@@ -312,6 +347,7 @@ describe('ImmobileController', () => {
   });
 
   it("addClient Returns 500 when client _id is not provided", async () => {
+    givenUserWithPermission();
     const immobile = {
       _id: "abc",
       client: {
@@ -325,6 +361,8 @@ describe('ImmobileController', () => {
   });
 
   it("removeClient", async () => {
+    givenUserWithPermission();
+
     const immobile = {
       _id: "abc",
       client: {
@@ -338,6 +376,14 @@ describe('ImmobileController', () => {
 
     expect(results.status).toBe(200);
   });
+
+  function givenUserWithPermission(){
+    sinon.stub(groupService, 'hasPermission').callsFake(() => true);
+  };
+
+  function givenUserWithoutPermission(){
+    sinon.stub(groupService, 'hasPermission').callsFake(() => false);
+  };
 
 });
 

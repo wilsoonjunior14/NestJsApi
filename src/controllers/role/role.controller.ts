@@ -5,16 +5,20 @@ import { Utils } from "../../utils/Utils";
 import { group } from 'console';
 import { LogsService } from '../logs/logs.service';
 import { UserService } from '../user/user.service';
+import { GroupService } from '../group/group.service';
 
 @Controller('role')
 export class RoleController {
 
     private utils;
 
+    private roleCRUDRole : String = "CRUD_ROLE";
+
     constructor(private roleService: RoleService, 
         private logsService: LogsService,
-        private userService: UserService){
-        this.utils = new Utils(this.logsService, this.userService);
+        private userService: UserService,
+        private groupService: GroupService){
+        this.utils = new Utils(this.logsService, this.userService, this.groupService);
     }
 
     @Get('/:id')
@@ -40,6 +44,13 @@ export class RoleController {
     @Post()
     async createRole(@Body() role, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDRole);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, role, request);
+            }
+
             let validation = this.validateRole(role, false, request);
             if (validation){
                 return validation;
@@ -66,6 +77,13 @@ export class RoleController {
     @Put()
     async updateRole(@Body() role, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDRole);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, role, request);
+            }
+
             let validation = this.validateRole(role, true, request);
             if (validation){
                 return validation;
@@ -98,6 +116,13 @@ export class RoleController {
     @Delete('/:id')
     async deleteRole(@Param('id') id: String, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDRole);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, id, request);
+            }
+
             if (!id){
                 let errorMessage = this.utils.buildMessage("Identificador de Permissão não informado.", Constants.INVALID_FIELD_EMPTY);
                 return this.utils.getInternalServerError(errorMessage, id, request);

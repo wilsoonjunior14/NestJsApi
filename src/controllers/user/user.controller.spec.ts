@@ -6,6 +6,7 @@ import { UserModule } from './user.module';
 import { MailService } from '../../utils/Mail.service';
 import { Utils } from '../../utils/Utils';
 import { LogsService } from '../logs/logs.service';
+import { GroupService } from '../group/group.service';
 const sinon = require('sinon');
 
 describe('UserController', () => {
@@ -14,6 +15,7 @@ describe('UserController', () => {
   let mailService: MailService;
   let utils: Utils;
   let logService: LogsService;
+  let groupService: GroupService;
 
   const MOCKED_USER = {
     name: "ABCED",
@@ -30,15 +32,19 @@ describe('UserController', () => {
     }
   };
 
+  var CURRENT_USER_MOCKED = {
+    group: ""
+  };
+
   beforeEach(async () => {
     logService = new LogsService(null);
     userService = new UserService(null, null);
-    utils = new Utils(logService, userService);
+    groupService = new GroupService(null);
+    utils = new Utils(logService, userService, groupService);
     mailService = new MailService(null);
-    controller = new UserController(userService, mailService, logService);
-    utils = new Utils(logService, userService);
+    controller = new UserController(userService, mailService, logService, groupService);
 
-    sinon.stub(userService, 'getDataByToken').callsFake(() => {});
+    sinon.stub(userService, 'getDataByToken').callsFake(() => CURRENT_USER_MOCKED);
     sinon.stub(logService, 'saveLog').callsFake(() => {});
   });
 
@@ -76,6 +82,7 @@ describe('UserController', () => {
   });
 
   it('delete Returns 500', async () => {
+    givenUserWithPermission();
     const id = "";
     sinon.stub(userService, 'getById').rejects(new Error("id invalid"));
     
@@ -84,6 +91,7 @@ describe('UserController', () => {
   });
 
   it('delete', async () => {
+    givenUserWithPermission();
     const id = "";
     sinon.stub(userService, 'getById').callsFake(() => MOCKED_USER);
     sinon.stub(userService, 'update').callsFake(() => MOCKED_USER);
@@ -92,12 +100,20 @@ describe('UserController', () => {
     expect(results.status).toBe(200);
   });
 
+  it('delete returns 500 when user has not permission', async () => {
+    givenUserWithoutPermission();
+    const results = await controller.delete("", REQUEST_MOCKED);
+    expect(results.status).toBe(500);
+  });
+
   it('create Returns 500 when null user is provided', async () => {
+    givenUserWithPermission();
     const results = await controller.create(null, REQUEST_MOCKED);
     expect(results.status).toBe(500);
   });
 
   it('create Returns 500 when user has not name', async () => {
+    givenUserWithPermission();
     const MOCKED_USER_WITHOUT_NAME = {
       email: "ABC@"
     };
@@ -108,6 +124,7 @@ describe('UserController', () => {
   });
 
   it('create Returns 500 when user has not email', async () => {
+    givenUserWithPermission();
     const MOCKED_USER_WITHOUT_EMAIL = {
       name: "ABCASKJDA"
     };
@@ -118,6 +135,7 @@ describe('UserController', () => {
   });
 
   it('create Returns 500 when user has not cpf or cnpj', async () => {
+    givenUserWithPermission();
     const MOCKED_USER_WITHOUT_CPF = {
       name: "ABCASKJDA",
       email: "abc@gmail.com"
@@ -129,6 +147,7 @@ describe('UserController', () => {
   });
 
   it('create Returns 500 when user has not phone', async () => {
+    givenUserWithPermission();
     const MOCKED_USER_WITHOUT_PHONE = {
       name: "ABCASKJDA",
       email: "abc@gmail.com",
@@ -141,6 +160,7 @@ describe('UserController', () => {
   });
 
   it('create Returns 500 when existing user with same email', async () => {
+    givenUserWithPermission();
     sinon.stub(userService, 'findByQuery').callsFake(() => [MOCKED_USER]);
 
     const results = await controller.create(MOCKED_USER, REQUEST_MOCKED);
@@ -149,20 +169,32 @@ describe('UserController', () => {
   });
 
   it('create', async () => {
+    givenUserWithPermission();
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
     sinon.stub(userService, 'save').callsFake(() => MOCKED_USER);
+    sinon.stub(groupService, 'findByQuery').callsFake(() => [{_id: ""}]);
 
     const results = await controller.create(MOCKED_USER, REQUEST_MOCKED);
 
     expect(results.status).toBe(200);
   });
 
+  it('create returns 500 when user has not permission', async () => {
+    givenUserWithoutPermission();
+
+    const results = await controller.create({}, REQUEST_MOCKED);
+
+    expect(results.status).toBe(500);
+  });
+
   it('update Returns 500 when null user is provided', async () => {
+    givenUserWithPermission();
     const results = await controller.update(null, REQUEST_MOCKED);
     expect(results.status).toBe(500);
   });
 
   it('update', async () => {
+    givenUserWithPermission();
     sinon.stub(userService, 'getById').callsFake(() => MOCKED_USER);
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
     sinon.stub(userService, 'update').callsFake(() => MOCKED_USER);
@@ -174,7 +206,16 @@ describe('UserController', () => {
     expect(results.status).toBe(200);
   });
 
+  it('update returns 500 when user has not permission', async () => {
+    givenUserWithoutPermission();
+
+    const results = await controller.update({}, REQUEST_MOCKED);
+
+    expect(results.status).toBe(500);
+  });
+
   it('update Returns 500 when existing user with email is returned', async () => {
+    givenUserWithPermission();
     sinon.stub(userService, 'findByQuery').callsFake(() => []);
     sinon.stub(userService, 'update').callsFake(() => MOCKED_USER);
 
@@ -388,5 +429,13 @@ describe('UserController', () => {
 
     expect(results.status).toBe(200);
   });
+
+  function givenUserWithPermission(){
+    sinon.stub(groupService, 'hasPermission').callsFake(() => true);
+  };
+
+  function givenUserWithoutPermission(){
+    sinon.stub(groupService, 'hasPermission').callsFake(() => false);
+  };
 
 });

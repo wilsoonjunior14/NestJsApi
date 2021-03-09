@@ -6,17 +6,25 @@ import { LocalizationService } from '../localization/localization.service';
 import { UserService } from '../user/user.service';
 import { Localization } from '../../../dist/controllers/localization/localization.model';
 import { LogsService } from '../logs/logs.service';
+import { GroupService } from '../group/group.service';
 
 @Controller('immobile')
 export class ImmobileController {
 
     private utils: Utils;
 
+    private roleCRUDImmobile : String = "CRUD_IMMOBILE";
+
+    private roleREMOVEClient: String = "REMOVE_CLIENT";
+
+    private roleADDClient : String = "ADD_CLIENT";
+
     constructor(private immobileService: ImmobileService, 
         private localizationService: LocalizationService,
         private userService: UserService,
-        private logsService: LogsService){
-        this.utils = new Utils(this.logsService, this.userService);
+        private logsService: LogsService,
+        private groupService: GroupService){
+        this.utils = new Utils(this.logsService, this.userService, this.groupService);
     }
 
     @Get()
@@ -42,6 +50,12 @@ export class ImmobileController {
     @Delete('/:id')
     public async delete(@Param('id') id: String, @Req() request){
         try{
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDImmobile);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, id, request);
+            }
+
             if (id.trim().length === 0){
                 return await this.utils.getInternalServerError(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, id, request);
             }
@@ -60,6 +74,12 @@ export class ImmobileController {
     @Post()
     public async create(@Body() immobile, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDImmobile);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, immobile, request);
+            }
 
             const validated = this.validateImmobile(immobile, false);
             if (validated.invalid){
@@ -88,6 +108,12 @@ export class ImmobileController {
     public async update(@Body() immobile, @Req() request){
         try{
 
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDImmobile);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, immobile, request);
+            }
+
             const validated = this.validateImmobile(immobile, true);
             if (validated.invalid){
                 return await this.utils.getInternalServerError(this.utils.buildMessage("Imóvel com campo(s) inválido(s)!", validated.messages.join(",")), request, request);
@@ -113,6 +139,12 @@ export class ImmobileController {
     public async addClient(@Body() immobileWithClient, @Req() request){
         try{
 
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleADDClient);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, immobileWithClient, request);
+            }
+
             const validation = this.validateInsertClient(immobileWithClient);
             if (validation.invalid){
                 return await this.utils.getInternalServerError(validation.message, immobileWithClient, request);
@@ -131,6 +163,12 @@ export class ImmobileController {
     @Patch('/removeClient')
     public async removeClient(@Body() immobileWithClient, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleREMOVEClient);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, immobileWithClient, request);
+            }
 
             const validation = this.validateInsertClient(immobileWithClient);
             if (validation.invalid){

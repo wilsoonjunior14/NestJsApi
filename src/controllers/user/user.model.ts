@@ -27,6 +27,16 @@ export const UserSchema = new mongoose.Schema({
         required: true,
         default: Date.now
     },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: ""
+    },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: ""
+    },
     updatedAt: {
         type: Date,
         required: true,
@@ -55,6 +65,8 @@ export interface User extends mongoose.Document {
     deleted: boolean,
     cpfCnpj: string,
     createdAt: Date,
+    createdBy: string,
+    updatedBy: string,
     updatedAt: Date,
     group: any,
     password: string,

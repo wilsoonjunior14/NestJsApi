@@ -5,16 +5,19 @@ import { Utils } from '../../utils/Utils';
 import { Constants } from '../../utils/Contansts';
 import { LogsService } from '../logs/logs.service';
 import { UserService } from '../user/user.service';
+import { check } from 'prettier';
 
 @Controller('group')
 export class GroupController {
 
     private utils;
 
+    private roleCRUDGroup : String = "CRUD_GROUP";
+
     constructor(private groupService: GroupService, 
         private logsService: LogsService,
         private userService: UserService){
-        this.utils = new Utils(this.logsService, this.userService);
+        this.utils = new Utils(this.logsService, this.userService, this.groupService);
     }
 
     @Get()
@@ -40,6 +43,12 @@ export class GroupController {
     @Post()
     async createGroup(@Body() group, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDGroup);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, group, request);
+            }
 
             let validate = this.validateGroup(group, false, request);
             if (validate){
@@ -67,6 +76,13 @@ export class GroupController {
     @Delete('/:id')
     async deleteGroup(@Param("id") id: String, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDGroup);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, id, request);
+            }
+
             let oldGroup = await this.groupService.getById(id);
             oldGroup.deleted = true;
 
@@ -80,6 +96,12 @@ export class GroupController {
     @Put()
     async updateGroup(@Body() group, @Req() request){
         try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDGroup);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, group, request);
+            }
 
             let validate = this.validateGroup(group, true, request);
             if (validate){
@@ -113,7 +135,35 @@ export class GroupController {
 
     @Post("role")
     async insertRoleIntoGroup(@Body() group, @Req() request){
-        return await this.groupService.update(group._id, group);
+        try{
+
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, this.roleCRUDGroup);
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, group, request);
+            }
+
+            if (!group || !group._id){
+                return await this.utils.getInternalServerError(Constants.INVALID_IDENTIFIER_NOT_PROVIDED, group, request);
+            }
+
+            if (!group.roles || group.roles.length === 0){
+                return await this.utils.getInternalServerError(
+                    this.utils.buildMessage("Campo permissões inválido!", Constants.INVALID_FIELD_EMPTY),
+                    group,
+                    request
+                );
+            }
+
+            let oldGroup = await this.groupService.getById(group._id);
+            oldGroup.roles = group.roles;
+            await this.groupService.update(group._id, oldGroup);
+
+            return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, oldGroup, request);
+
+        } catch(err){
+            return await this.utils.getInternalServerError(err.toString(), group, request);
+        }
     }
 
     private validateGroup(group, validateId, request){

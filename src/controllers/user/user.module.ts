@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './user.model';
 import { UserController } from './user.controller';
@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { Constants } from '../../utils/Contansts';
 import { MailService } from '../../utils/Mail.service';
 import { LogsModule } from '../logs/logs.module';
+import { GroupModule } from '../group/group.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { LogsModule } from '../logs/logs.module';
           expiresIn: '24h'
         }
       }),
-      LogsModule
+      LogsModule,
+      forwardRef(() => GroupModule)
   ],
   exports: [UserService],
   controllers: [UserController],

@@ -17,6 +17,7 @@ import { ImmobileController } from './controllers/immobile/immobile.controller';
 import { LocalizationController } from './controllers/localization/localization.controller';
 import { LogsController } from './controllers/logs/logs.controller';
 import { LogsModule } from './controllers/logs/logs.module';
+import { GroupService } from './controllers/group/group.service';
 
 @Module({
   imports: [
