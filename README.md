@@ -11,4 +11,5 @@ This Project was created for to help locators the manage more easy and with prac
   - utils (Common and generalizated methods)
 - test (e2e tests)
 - testPerformance (jmeter tests)
+```
 

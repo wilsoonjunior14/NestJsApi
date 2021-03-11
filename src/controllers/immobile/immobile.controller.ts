@@ -93,7 +93,8 @@ export class ImmobileController {
             const newImmobile = Object.assign(immobile, {
                 user: user._id,
                 localization: createdLocalization._id,
-                client: null
+                client: null,
+                contract: null
             });
 
             const createdImmobile = await this.immobileService.create(newImmobile);

@@ -5,6 +5,8 @@ export const Constants = {
     PATTERN_FIELD_CPF_CNPJ_MASKED: /((\d{3}\.){2}\d{3}-\d{2})|(\d{2}(\.\d{3}){2}.\d{4}\.\d{2})/g,
     PATTERN_FIELD_PHONE: /\(\d{2}\)\d{5}-\d{4}/g,
     PATTERN_FIELD_NUMBER: /[0-9]+/g,
+    PATTERN_FIELD_DATE: /(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/g,
+    ROLE_CRUD_CONTRACT: "CRUD_CONTRACT",
     INVALID_COMMON_MESSAGE: "Verifique as seguintes condições:",
     INVALID_FIELD_EMPTY: "Campo não informado ou vazio.",
     INVALID_FIELD_100_CHARACTERS: "Máximo de 100 caracteres são permitidos.",

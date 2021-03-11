@@ -16,6 +16,7 @@ import { GroupModule } from '../group/group.module';
         LogsModule,
         GroupModule
     ],
+    exports: [ImmobileService],
     controllers: [ImmobileController],
     providers: [ImmobileService],
 })

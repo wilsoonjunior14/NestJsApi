@@ -34,6 +34,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -41,7 +51,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "ABCD",
+									"value": "NEW ROLE",
 									"type": "text"
 								}
 							]
@@ -92,6 +102,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -129,6 +149,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -163,6 +193,16 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
@@ -197,11 +237,21 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"_id\": \"60399f8feebfa28d18e569a5\",\n    \"description\": \"COMMON COMMON\"\n}",
+							"raw": "{\n    \"_id\": \"60399f8feebfa28d18e569a5\",\n    \"description\": \"COMMON COMMON COMMON\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -231,6 +281,16 @@
 				{
 					"name": "/group",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -238,7 +298,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "abcd",
+									"value": "TENANCE",
 									"type": "text"
 								}
 							]
@@ -265,7 +325,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"_id\" : \"602c1f59e2526d093323026f\",\n\t\"deleted\" : false,\n\t\"roles\" : [\n        {\n            \"deleted\": false,\n            \"_id\": \"602c3d76388ecd0ba14c8742\",\n            \"description\": \"COMMON\",\n            \"__v\": 0\n        }\n    ],\n\t\"description\" : \"SYSADMIN\",\n\t\"__v\" : 0\n}",
+							"raw": "{\n\t\"_id\" : \"60461234a8f26d5b98ae2864\",\n\t\"roles\" : [\n        {\n            \"_id\": \"60461357a8f26d5b98ae286d\"\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -290,6 +350,16 @@
 				{
 					"name": "/group",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDQ2MjA5Y2E4ZjI2ZDViOThhZTI4NzUiLCJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6InN5c2FkbWluQGdtYWlsLmNvbSIsImRlbGV0ZWQiOmZhbHNlLCJpYXQiOjE2MTUyMTA0MjEsImV4cCI6MTYxNTI5NjgyMX0.yZ3QxYit8BZQtNbbxXHJplc3Yr_3-KrRDiGuPGZwsDg",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -310,10 +380,20 @@
 				{
 					"name": "/group/:id",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/group/603393717b4c494a03ea5eb1",
+							"raw": "http://localhost:3000/group/6039a045dea9ab8d5b77968a",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -321,7 +401,7 @@
 							"port": "3000",
 							"path": [
 								"group",
-								"603393717b4c494a03ea5eb1"
+								"6039a045dea9ab8d5b77968a"
 							]
 						},
 						"description": "Gets an single instance of group"
@@ -331,6 +411,16 @@
 				{
 					"name": "/group/:id",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
 						"header": [],
 						"url": {
@@ -352,6 +442,16 @@
 				{
 					"name": "/group",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ5NDg1MzMsImV4cCI6MTYxNTAzNDkzM30.5CrngSO_c-ccZZP7yJzQh_pSaRthvyBBOybXXmTB80k",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"body": {
@@ -359,7 +459,7 @@
 							"urlencoded": [
 								{
 									"key": "description",
-									"value": "abcd",
+									"value": "abcdsdfgsgsdgshshsdfgh",
 									"type": "text"
 								},
 								{
@@ -402,7 +502,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndqdW5pb3JfbXNuQGhvdG1haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJpYXQiOjE2MTQ4OTQwOTgsImV4cCI6MTYxNDk4MDQ5OH0.-j6TnCOWojHegdFEdi_aJ_h6lf-BMe8BTxdoyb1clb4",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDQ2MjA5Y2E4ZjI2ZDViOThhZTI4NzUiLCJuYW1lIjoiYWRtaW4iLCJlbWFpbCI6InN5c2FkbWluQGdtYWlsLmNvbSIsImRlbGV0ZWQiOmZhbHNlLCJpYXQiOjE2MTUyMDg2NTEsImV4cCI6MTYxNTI5NTA1MX0.8Sh3KPuQqqkPi1DRnpcz1WDdoevL7M-nwpRL6lIExUs",
 									"type": "string"
 								}
 							]
@@ -432,7 +532,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSsO6bmlvciIsImVtYWlsIjoiZnJhbndqQGdtYWlsLmNvbSIsImNwZkNucGoiOiIxMjMuMTIzLjEyMy0yMyIsImRlbGV0ZWQiOmZhbHNlLCJwaG9uZSI6Iig4OCk5OTkyNC0xNDkyIiwiaWF0IjoxNjE0NjI3MTIwLCJleHAiOjE2MTQ3MTM1MjB9.p5jLPDdamrXUuKXejQFd2BYvxPMhB_CKxAhTmfm4wtc",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDQ2MjBmNmY5YjhlNTM5MGM2ODU2YjAiLCJuYW1lIjoiRnJhbmNpc2NvIFdpbHNvbiBSb2RyaWd1ZXMgSnIiLCJlbWFpbCI6IndpbHNvb25qdW5pb3JAZ21haWwuY29tIiwiY3BmQ25waiI6IjAzOC4xOTIuNzczLTMxIiwiZGVsZXRlZCI6ZmFsc2UsInBob25lIjoiKDg4KTk5OTI0LTE0OTIiLCJncm91cCI6IjYwNDYxMjM0YThmMjZkNWI5OGFlMjg2NCIsImlhdCI6MTYxNTIxMzE4MCwiZXhwIjoxNjE1Mjk5NTgwfQ.wI_fSZyFjBygQ-yBn2DOwyVWkcb2D_sPF56hxHKccIU",
 									"type": "string"
 								}
 							]
@@ -441,7 +541,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Francisco Wilson Rodrigues Jr\",\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"cpfCnpj\": \"038.192.773-31\",\n    \"phone\": \"(88)99924-1492\",\n    \"password\": \"12345\"\n}",
+							"raw": "{\n    \"name\": \"Francisco Wilson Rodrigues Jr\",\n    \"email\": \"wilsoonjunior@gmail.com\",\n    \"cpfCnpj\": \"038.192.773-31\",\n    \"phone\": \"(88)99924-1492\",\n    \"password\": \"12345\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -516,7 +616,7 @@
 					"response": []
 				},
 				{
-					"name": "PUT",
+					"name": "PUT /user",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -577,7 +677,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"wjunior_msn@hotmail.com\",\n    \"password\": \"abcdef\"\n}",
+							"raw": "{\n    \"email\": \"wilsoonjunior@gmail.com\",\n    \"password\": \"12345\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -933,6 +1033,160 @@
 							]
 						},
 						"description": "Removes a client of immobile"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contract",
+			"item": [
+				{
+					"name": "POST /contract",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"beginDate\": \"2021-01-01\",\n    \"endDate\": \"2021-12-31\",\n    \"monthValue\": 800.00,\n    \"immobile\": {\n        \"_id\": \"604a0d881b62aa65068e204e\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}contract",
+							"host": [
+								"{{URL}}contract"
+							]
+						},
+						"description": "Creates a new instance of contract of immobile"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /contract",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}contract",
+							"host": [
+								"{{URL}}contract"
+							]
+						},
+						"description": "Gets all contracts enabled"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /contract/:id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}contract/604a0dd0fc4b336517d5bec8",
+							"host": [
+								"{{URL}}contract"
+							],
+							"path": [
+								"604a0dd0fc4b336517d5bec8"
+							]
+						},
+						"description": "Gets a single entity"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE /contract/:id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/contract/604a0dd0fc4b336517d5bec8",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"contract",
+								"604a0dd0fc4b336517d5bec8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT /contract",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"_id\": \"604a2224b6082b67b5931d5e\",\n    \"beginDate\": \"2020-01-01\",\n    \"endDate\": \"2020-12-31\",\n    \"monthValue\": 1000.00,\n    \"immobile\": {\n        \"_id\": \"604a0dd0fc4b336517d5bec8\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}contract",
+							"host": [
+								"{{URL}}contract"
+							]
+						},
+						"description": "Updates a single entity"
 					},
 					"response": []
 				}

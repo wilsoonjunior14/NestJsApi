@@ -24,6 +24,11 @@ export const ImmobileSchema = new mongoose.Schema({
         required: true
     },
 
+    contract: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Contract",
+    },
+
     createdAt: {
         type: Date,
         required: true,
@@ -48,6 +53,7 @@ export interface Immobile extends mongoose.Document{
     id: string;
     name: string;
     user: any;
+    contract: any;
     client: any;
     localization: any;
     createdAt: Date;

@@ -17,7 +17,8 @@ import { ImmobileController } from './controllers/immobile/immobile.controller';
 import { LocalizationController } from './controllers/localization/localization.controller';
 import { LogsController } from './controllers/logs/logs.controller';
 import { LogsModule } from './controllers/logs/logs.module';
-import { GroupService } from './controllers/group/group.service';
+import { ContractModule } from './controllers/contract/contract.module';
+import { ContractController } from './controllers/contract/contract.controller';
 
 @Module({
   imports: [
@@ -49,7 +50,8 @@ import { GroupService } from './controllers/group/group.service';
     UserModule,
     LocalizationModule,
     ImmobileModule,
-    LogsModule
+    LogsModule,
+    ContractModule
   ],
   controllers: [AppController, LogsController],
   providers: [AppService],
@@ -62,6 +64,7 @@ export class AppModule implements NestModule {
         GroupController,
         ImmobileController,
         LocalizationController,
+        ContractController,
         {path: 'user', method: RequestMethod.GET},
         {path: 'user', method: RequestMethod.POST},
         {path: 'user', method: RequestMethod.PUT},
