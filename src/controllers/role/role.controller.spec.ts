@@ -57,73 +57,77 @@ describe('RoleController', () => {
   it('findById', async () => {
     var id = "19283012j3k1j2";
 
-    sinon.stub(service, 'findById').callsFake(() => MOCKED_ROLE);
+    whenFindByIdIsCalled(MOCKED_ROLE);
     const results = await controller.findById(id, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('findById Returns 500 when invalid id is provided', async () => {
     var id = "";
 
-    sinon.stub(service, 'findById').rejects(new Error("id invalid"));
+    whenFindByIdIsCalledWithError();
     const results = await controller.findById(id, REQUEST_MOCKED);
 
     expect(results.status).toBe(500);
   });
 
   it('findAllEnabledRoles', async () => {
-    sinon.stub(service, 'findAllEnabledRoles').callsFake(() => [MOCKED_ROLE]);
+    whenFindAllEnabledRolesIsCalled(MOCKED_ROLE);
     var results = await controller.findAllEnabledRoles(REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('createRole returns status 500', async () => {
     givenUserWithPermission();
+
     var returns = await controller.createRole(roleMocked, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it('createRole returns 500 when user has not permission', async () => {
     givenUserWithoutPermission();
+
     var returns = await controller.createRole(roleMocked, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it('createdRole', async () => {
     givenUserWithPermission();
-    sinon.stub(service, 'create').callsFake(() => MOCKED_ROLE);
-    sinon.stub(service, 'findByQuery').callsFake(() => []);
-
+    
+    whenCreateIsCalled(MOCKED_ROLE);
+    whenFindByQueryIsCalled();
     var results = await controller.createRole(MOCKED_ROLE, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('updateRole returns status 500', async () => {
     givenUserWithPermission();
+    
     var returns = await controller.updateRole(roleMocked, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it('updateRole returns 500 when user has not permission', async () => {
     givenUserWithoutPermission();
+    
     var returns = await controller.updateRole(roleMocked, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it('updateRole', async () => {
     givenUserWithPermission();
-    sinon.stub(service, 'findById').callsFake(() => MOCKED_ROLE);
-    sinon.stub(service, 'update').callsFake(() => MOCKED_ROLE);
-    sinon.stub(service, 'findByQuery').callsFake(() => []);
     const MOCKED_UPDATED_ROLE = Object.assign(MOCKED_ROLE, {_id: "1023lkj1l23"});
-
+    
+    whenFindByIdIsCalled(MOCKED_ROLE);
+    whenUpdateIsCalled(MOCKED_ROLE);
+    whenFindByQueryIsCalled();
     var returns = await controller.updateRole(MOCKED_UPDATED_ROLE, REQUEST_MOCKED);
 
     expect(returns.status).toBe(200);
@@ -131,16 +135,18 @@ describe('RoleController', () => {
 
   it ('deleteRole returns 500', async () => {
     givenUserWithoutPermission();
+    
     var returns = await controller.deleteRole(null, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it ('deleteRole returns status 500', async () => {
     givenUserWithPermission();
+    
     var returns = await controller.deleteRole(null, REQUEST_MOCKED);
 
-    expect(returns.status).toBe(500);
+    thenError(returns);
   });
 
   it ('deleteRole', async () => {
@@ -148,22 +154,54 @@ describe('RoleController', () => {
     var id = "123123lj123lk1";
     var DELETED_ROLE = Object.assign(MOCKED_ROLE, {deleted: true});
     
-    sinon.stub(service, 'findById').callsFake(() => MOCKED_ROLE);
-    sinon.stub(service, 'update').callsFake(() => DELETED_ROLE);
+    whenFindByIdIsCalled(MOCKED_ROLE);
+    whenUpdateIsCalled(DELETED_ROLE);
     var deletedRole = await controller.deleteRole(id, REQUEST_MOCKED);
 
-    expect(deletedRole.status).toBe(200);
+    thenSuccess(deletedRole);
   });
 
   it ('deleteRole Returns 500 when id provided is null', async () => {
     givenUserWithPermission();
     var id = "123123lj123lk1";
     
-    sinon.stub(service, 'findById').rejects(new Error("id invalid"));
+    whenFindByIdIsCalledWithError();
     var deletedRole = await controller.deleteRole(id, REQUEST_MOCKED);
 
     expect(deletedRole.status).toBe(500);
   });
+
+  function whenUpdateIsCalled(value){
+    sinon.stub(service, 'update').callsFake(() => value);
+  }
+
+  function whenFindByQueryIsCalled(){
+    sinon.stub(service, 'findByQuery').callsFake(() => []);
+  }
+
+  function whenCreateIsCalled(value){
+    sinon.stub(service, 'create').callsFake(() => value);
+  }
+
+  function whenFindAllEnabledRolesIsCalled(values){
+    sinon.stub(service, 'findAllEnabledRoles').callsFake(() => [values]);
+  }
+
+  function whenFindByIdIsCalledWithError(){
+    sinon.stub(service, 'findById').rejects(new Error("id invalid"));
+  }
+
+  function whenFindByIdIsCalled(value){
+    sinon.stub(service, 'findById').callsFake(() => value);
+  }
+
+  function thenSuccess(results){
+    expect(results.status).toBe(200);
+  }
+
+  function thenError(results){
+    expect(results.status).toBe(500);
+  }
 
   function givenUserWithPermission(){
     sinon.stub(groupService, 'hasPermission').callsFake(() => true);

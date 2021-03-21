@@ -7,6 +7,7 @@ import { ImmobileService } from '../immobile/immobile.service';
 import { ContractService } from './contract.service';
 import { Utils } from '../../utils/Utils';
 import { ContractModule } from './contract.module';
+import { Immobile } from '../immobile/immobile.model';
 const sinon = require('sinon');
 
 describe('ContractController', () => {
@@ -27,6 +28,10 @@ describe('ContractController', () => {
   const MOCKED_CURRENT_USER = {
     group: ""
   };
+
+  var MOCKED_CONTRACT = {};
+
+  var MOCKED_IMMOBILE = {};
 
   beforeEach(async () => {
     logService = new LogsService(null);
@@ -51,78 +56,64 @@ describe('ContractController', () => {
   });
 
   it("getAll", async() => {
-    sinon.stub(contractService, 'findByQuery').callsFake(() => []);
-
+    whenFindByQueryContractIsCalled([]);
     const results = await controller.getAll(MOCKED_REQUEST);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("getById returns 500 when id is null", async () => {
-    sinon.stub(contractService, 'findById').rejects(new Error("invalid id"));
-
+    whenFindByIdContractIsCalledWithError();
     const results = await controller.getById(null, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("getById", async () => {
-    sinon.stub(contractService, 'findById').callsFake(() => {});
-
+    whenFindByIdContractIsCalled({});
     const results = await controller.getById(null, MOCKED_REQUEST);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("delete returns 500 when user has not permission", async () => {
     whenUserHasNotPermission();
-
     const results = await controller.delete(null, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("delete returns 500 when id is not found", async () => {
-    sinon.stub(contractService, 'findById').rejects(new Error("invalid id"));
+    whenFindByIdContractIsCalledWithError();
     whenUserHasPermission();
-
     const results = await controller.delete({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("delete returns 500 when immobile id is not found", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abce"
-    };
+    givenSingleContractWithOnly_Id();
 
-    sinon.stub(contractService, 'findById').callsFake(() => MOCKED_CONTRACT);
-    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
+    whenFindByIdContractIsCalled(MOCKED_CONTRACT);
+    whenGetByIdImmobileIsCalledWithError();
     whenUserHasPermission();
-
     const results = await controller.delete({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("delete", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abce"
-    };
+    givenSingleContractWithOnly_Id();
+    givenSingleImmobile();
 
-    const MOCKED_IMMOBILE = {
-      contract: null
-    };
-
-    sinon.stub(contractService, 'findById').callsFake(() => MOCKED_CONTRACT);
-    sinon.stub(immobileService, 'getById').callsFake(() => MOCKED_IMMOBILE);
-    sinon.stub(contractService, 'update').callsFake(() => {});
-    sinon.stub(immobileService, 'update').callsFake(() => {});
+    whenFindByIdContractIsCalled(MOCKED_CONTRACT);
+    whenGetByIdImmobileIsCalled(MOCKED_IMMOBILE);
+    whenUpdateContractIsCalled({});
+    whenUpdateImmobileIsCalled({});
     whenUserHasPermission();
-
     const results = await controller.delete({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("create returns 500 when user has not permission", async () => {
@@ -130,7 +121,7 @@ describe('ContractController', () => {
 
     const results = await controller.create({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when contract is null", async () => {
@@ -138,7 +129,7 @@ describe('ContractController', () => {
 
     const results = await controller.create(null, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when beginDate is not provided", async () => {
@@ -146,232 +137,154 @@ describe('ContractController', () => {
 
     const results = await controller.create({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when beginDate has invalid pattern", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01313-0112341241"
-    };
+    givenContractWithOnlyBeginDate();
 
     whenUserHasPermission();
 
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when beginDate has invalid format", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-99-91"
-    };
+    givenContractWithInvalidBeginDate();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when endDate is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01"
-    };
+    givenContractWithOnlyValidBeginDate();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when endDate has invalid format", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-99-99"
-    };
+    givenContractWithBeginDateAndInvalidEndDate();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when endDate has invalid pattern", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-99999-99999"
-    };
+    givenContractWithBeginDateAndEndDateWithInvalidPattern();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when beginDate is bigger than endDate", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2021-01-01",
-      endDate: "2020-12-01"
-    };
+    givenContractWithBeginDateBiggerThanEndDate();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when monthValue is not provided", async () => {
-
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01"
-    };
-
+    givenContractWithoutMonthValue();
+    
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when monthValue is zero", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 0.00
-    };
+    givenContractWithZeroMonthValue();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when monthValue is lower than zero", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: -120.00
-    };
+    givenContractWithMonthValueLowerThanZero();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when monthValue is a string", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: "100"
-    };
+    givenContractWithMonthValueBeingAString();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when immobile is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 100
-    };
+    givenContractWithoutImmobile();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when immobile _id is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 100,
-      immobile: {}
-    };
+    givenContractWithoutImmobileId();
 
     whenUserHasPermission();
-
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when there are many contracts of an immobile", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 100,
-      immobile: {
-        _id: "abceds"
-      }
-    };
+    givenContractValid();
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findByQuery').callsFake(() => [MOCKED_CONTRACT]);
+    whenFindByQueryContractIsCalled([MOCKED_CONTRACT]);
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create returns 500 when _id immobile does not exists", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 100,
-      immobile: {
-        _id: "abceds"
-      }
-    };
-
-    const MOCKED_IMMOBILE = {
-      contract: null
-    };
+    givenContractValid();
+    givenSingleImmobile();
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findByQuery').callsFake(() => []);
-    sinon.stub(contractService, 'save').callsFake(() => MOCKED_CONTRACT);
-    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
-    sinon.stub(immobileService, 'update').callsFake(() => MOCKED_IMMOBILE);
+    whenFindByQueryContractIsCalled([]);
+    whenSaveContractIsCalled(MOCKED_CONTRACT);
+    whenGetByIdImmobileIsCalledWithError();
+    whenUpdateImmobileIsCalled(MOCKED_IMMOBILE);
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("create", async () => {
-    const MOCKED_CONTRACT = {
-      beginDate: "2020-01-01",
-      endDate: "2020-12-01",
-      monthValue: 100,
-      immobile: {
-        _id: "abceds"
-      }
-    };
-
-    const MOCKED_IMMOBILE = {
-      contract: null
-    };
+    givenContractValid();
+    givenSingleImmobile();
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findByQuery').callsFake(() => []);
-    sinon.stub(contractService, 'save').callsFake(() => MOCKED_CONTRACT);
-    sinon.stub(immobileService, 'getById').callsFake(() => MOCKED_IMMOBILE);
-    sinon.stub(immobileService, 'update').callsFake(() => MOCKED_IMMOBILE);
+    whenFindByQueryContractIsCalled([]);
+    whenSaveContractIsCalled(MOCKED_CONTRACT);
+    whenSaveImmobileIsCalled(MOCKED_IMMOBILE);
+    whenGetByIdImmobileIsCalled(MOCKED_IMMOBILE);
     const results = await controller.create(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("update returns 500 when user has not permission", async () => {
@@ -379,7 +292,7 @@ describe('ContractController', () => {
 
     const results = await controller.update({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when contract is null", async () => {
@@ -387,7 +300,7 @@ describe('ContractController', () => {
 
     const results = await controller.update(null, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when contract _id is not provided", async () => {
@@ -395,173 +308,110 @@ describe('ContractController', () => {
 
     const results = await controller.update({}, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when contract begin date is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced"
-    };
+    givenSingleContractWithOnly_Id();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when begin date has invalid format", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-99-99"
-    };
+    givenContractWithInvalidBeginDate();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when begin date has invalid pattern", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-9903-99"
-    };
+    givenContractWithInvalidBeginDate();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when end date is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01"
-    };
+    givenContractWithOnlyValidBeginDate();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when end date has invalid pattern", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2020/01/02"
-    };
+    givenContractWithBeginDateAndInvalidEndDate();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when end date is lower than begin date", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2019-01-01"
-    };
+    givenContractWithBeginDateBiggerThanEndDate();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when monthValue is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01"
-    };
+    givenContractWithoutMonthValue();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when monthValue is a string", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: "100"
-    };
+    givenContractWithMonthValueBeingAString();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when monthValue is lower than zero", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: -100
-    };
+    givenContractWithMonthValueLowerThanZero();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when immobile is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: 200
-    };
+    givenContractWithoutImmobile();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when immobile _id is not provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: 200,
-      immobile: {}
-    };
+    givenContractWithoutImmobileId();
 
     whenUserHasPermission();
-
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update returns 500 when immobile _id found is different of immobile _id provided", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: 200,
-      immobile: {
-        _id: "abced"
-      }
-    };
+    givenContractValid();
 
     const MOCKED_FOUND_CONTRACT = {
       immobile: {
@@ -570,53 +420,41 @@ describe('ContractController', () => {
     };
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findById').callsFake(() => MOCKED_FOUND_CONTRACT);
+    whenFindByIdContractIsCalled(MOCKED_FOUND_CONTRACT);
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: 200,
-      immobile: {
-        _id: "abced"
-      }
-    };
+    givenContractValid();
 
     const MOCKED_CONTRACT_FOUND = {
-      immobile: "abced"
+      immobile: MOCKED_CONTRACT["immobile"]["_id"]
     };
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findById').callsFake(() => MOCKED_CONTRACT_FOUND);
-    sinon.stub(contractService, 'update').callsFake(() => MOCKED_CONTRACT);
+    whenFindByIdContractIsCalled(MOCKED_CONTRACT_FOUND);
+    whenUpdateContractIsCalled({});
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("update returns 500 when contract _id is not found", async () => {
-    const MOCKED_CONTRACT = {
-      _id: "abced",
-      beginDate: "2020-01-01",
-      endDate: "2021-01-01",
-      monthValue: 200,
-      immobile: {
-        _id: "abced"
-      }
-    };
+    givenContractValid();
 
     whenUserHasPermission();
-    sinon.stub(contractService, 'findById').rejects(new Error("invalid id"));
-    sinon.stub(contractService, 'update').callsFake(() => MOCKED_CONTRACT);
+    whenFindByIdContractIsCalledWithError();
+    whenUpdateContractIsCalled({});
     const results = await controller.update(MOCKED_CONTRACT, MOCKED_REQUEST);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
+
+  function whenSaveImmobileIsCalled(value){
+    sinon.stub(immobileService, 'update').callsFake(() => value);
+  }
 
   function whenUserHasNotPermission(){
     sinon.stub(groupService, 'hasPermission').callsFake(() => false);
@@ -624,6 +462,165 @@ describe('ContractController', () => {
 
   function whenUserHasPermission(){
     sinon.stub(groupService, 'hasPermission').callsFake(() => true);
+  }
+
+  function whenFindByQueryContractIsCalled(value: any[]){
+    sinon.stub(contractService, 'findByQuery').callsFake(() => value);
+  }
+
+  function thenSuccess(results: any){
+    expect(results.status).toBe(200);
+  }
+
+  function thenError(results: any){
+    expect(results.status).toBe(500);
+  }
+
+  function whenSaveContractIsCalled(value: any){
+    sinon.stub(contractService, 'save').callsFake(() => value);
+  }
+
+  function whenFindByIdContractIsCalledWithError() : void {
+    sinon.stub(contractService, 'findById').rejects(new Error("invalid id"));
+  }
+
+  function whenFindByIdContractIsCalled(value: any) : void {
+    sinon.stub(contractService, 'findById').callsFake(() => value);
+  }
+
+  function whenGetByIdImmobileIsCalledWithError() {
+    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
+  };
+
+  function givenSingleContractWithOnly_Id(){
+    MOCKED_CONTRACT = {
+      _id: "abce"
+    };
+  };
+
+  function whenGetByIdImmobileIsCalled(value: any) {
+    sinon.stub(immobileService, 'getById').callsFake(() => value);
+  }
+
+  function whenUpdateContractIsCalled(value: any){
+    sinon.stub(contractService, 'update').callsFake(() => value);
+  }
+
+  function whenUpdateImmobileIsCalled(value: any){
+    sinon.stub(immobileService, 'update').callsFake(() => {});
+  }
+
+  function givenSingleImmobile() {
+    MOCKED_IMMOBILE = {
+      contract: null
+    };
+  };
+
+  function givenContractWithOnlyBeginDate(){
+    MOCKED_CONTRACT = {
+      _id: "aslkdjal",
+      beginDate: "2020-01313-0112341241"
+    };
+  }
+
+  function givenContractWithInvalidBeginDate(){
+    MOCKED_CONTRACT = {
+      _id: "abcedsd",
+      beginDate: "2020-99-91"
+    };
+  }
+
+  function givenContractWithOnlyValidBeginDate(){
+    MOCKED_CONTRACT = {
+      beginDate: "2020-01-01"
+    };
+  };
+
+  function givenContractWithBeginDateAndInvalidEndDate(){
+    MOCKED_CONTRACT = {
+      beginDate: "2020-01-01",
+      endDate: "2020-99-99"
+    };
+  }
+
+  function givenContractWithBeginDateAndEndDateWithInvalidPattern(){
+    MOCKED_CONTRACT = {
+      beginDate: "2020-01-01",
+      endDate: "2020-99999-99999"
+    };
+  }
+
+  function givenContractWithBeginDateBiggerThanEndDate(){
+    MOCKED_CONTRACT = {
+      _id: "assda",
+      beginDate: "2021-01-01",
+      endDate: "2020-12-01"
+    };
+  }
+
+  function givenContractWithoutMonthValue(){
+    MOCKED_CONTRACT = {
+      _id: "aslkdj",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01"
+    };
+  }
+
+  function givenContractWithZeroMonthValue(){
+    MOCKED_CONTRACT = {
+      _id: "asjk",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: 0.00
+    };
+  }
+
+  function givenContractWithMonthValueLowerThanZero(){
+    MOCKED_CONTRACT = {
+      _id: "aslkjd",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: -120.00
+    };
+  }
+
+  function givenContractWithMonthValueBeingAString(){
+    MOCKED_CONTRACT = {
+      _id: "aslkdj",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: "100"
+    };
+  }
+
+  function givenContractWithoutImmobile(){
+    MOCKED_CONTRACT = {
+      _id: "asldkj",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: 100
+    };
+  }
+
+  function givenContractWithoutImmobileId(){
+    MOCKED_CONTRACT = {
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: 100,
+      immobile: {}
+    };
+  }
+
+  function givenContractValid(){
+    MOCKED_CONTRACT = {
+      _id: "alskdj",
+      beginDate: "2020-01-01",
+      endDate: "2020-12-01",
+      monthValue: 100,
+      immobile: {
+        _id: "abceds"
+      }
+    };
   }
 
 });

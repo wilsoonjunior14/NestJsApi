@@ -54,37 +54,35 @@ describe('ImmobileController', () => {
   });
 
   it('getAll', async () => {
-    sinon.stub(immobileService, 'getEnabledImmobiles').callsFake(() => []);
-
+    whenGetEnabledImmobilesIsCalled();
     const results = await controller.getAll(REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
-    expect(results.data.length).toBe(0);
+    thenSuccess(results);
   });
 
   it('getById', async () => {
-    sinon.stub(immobileService, 'getById').callsFake(() => [MOCKED_IMMOBILE]);
+    whenGetByIdIsCalled(MOCKED_IMMOBILE);
 
     const results = await controller.getById("a,msdba", REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('getById Returns 500 when id is null', async () => {
-    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
+    whenGetByIdIsCalledWithError();
 
     const results = await controller.getById(null, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('delete Returns 500 when id provided is null', async () => {
     givenUserWithPermission();
-    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
-
+    
+    whenGetByIdIsCalledWithError();
     const results = await controller.delete(null, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('delete Returns 500 when id has empty spaces on your building', async () => {
@@ -93,18 +91,18 @@ describe('ImmobileController', () => {
 
     const results = await controller.delete(_id, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('delete', async () => {
     givenUserWithPermission();
     const _id = "asldhalskdal";
 
-    sinon.stub(immobileService, 'getById').callsFake(() => MOCKED_IMMOBILE);
-    sinon.stub(immobileService, 'update').callsFake(() => {});
+    whenGetByIdIsCalled(MOCKED_IMMOBILE);
+    whenUpdateIsCalled();
     const results = await controller.delete(_id, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('create Returns 500 when name of immobile is not provided', async () => {
@@ -113,7 +111,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when user of immobile is not provided', async () => {
@@ -122,7 +120,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when user _id is not provided', async () => {
@@ -131,7 +129,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when localization of immobile is not provided', async () => {
@@ -140,7 +138,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when address of immobile is not provided', async () => {
@@ -149,7 +147,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when neighborhood of immobile is not provided', async () => {
@@ -158,7 +156,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when city of immobile is not provided', async () => {
@@ -167,7 +165,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when zipCode of immobile is not provided', async () => {
@@ -176,7 +174,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when number of immobile is not provided', async () => {
@@ -185,7 +183,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create Returns 500 when invalid number is', async () => {
@@ -194,7 +192,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('create', async () => {
@@ -204,12 +202,12 @@ describe('ImmobileController', () => {
       _id: "12313"
     };
 
-    sinon.stub(userService, 'getById').callsFake(() => immobileToBeCreated.user);
-    sinon.stub(localizationService, 'create').callsFake(() => localizationWithId);
-    sinon.stub(immobileService, 'create').callsFake(() => {});
+    whenGetByIdUserIsCalled(immobileToBeCreated.user);
+    whenCreateLocatizationIsCalled(localizationWithId);
+    whenCreateImmobileIsCalled({});
     const results = await controller.create(immobileToBeCreated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it('update Returns 500 when id is not provided', async () => {
@@ -218,7 +216,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('update Returns 500 when localization id is not provided', async () => {
@@ -227,7 +225,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it('update Returns 500 when localization address is not provided', async () => {
@@ -238,7 +236,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("update", async () => {
@@ -246,13 +244,14 @@ describe('ImmobileController', () => {
     var immobileToBeUpdated = givenImmobileWithId();
     immobileToBeUpdated.localization["_id"] = "akjsdghk";
 
-    sinon.stub(localizationService, 'getById').callsFake(() => immobileToBeUpdated.localization);
-    sinon.stub(localizationService, 'update').callsFake(() => immobileToBeUpdated.localization);
-    sinon.stub(immobileService, 'update').callsFake(() => immobileToBeUpdated);
-    sinon.stub(immobileService, 'getById').callsFake(() => immobileToBeUpdated);
+    whenGetByIdLocalization(immobileToBeUpdated.localization);
+    whenUpdateLocalizationIsCalled(immobileToBeUpdated.localization);
+    whenUpdateIsCalled();
+    whenGetByIdIsCalled(immobileToBeUpdated);
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
     
     expect(results.message).toBe("Operação realizada com sucesso!");
+    thenSuccess(results);
   });
 
   it("update Returns 500 when localization id is invalid", async () => {
@@ -260,24 +259,28 @@ describe('ImmobileController', () => {
     var immobileToBeUpdated = givenImmobileWithId();
     immobileToBeUpdated.localization["_id"] = "akjsdghk";
 
-    sinon.stub(localizationService, 'getById').rejects(new Error("invalid id"));
+    whenGetByIsLocalizationIsCalledWithError();
     const results = await controller.update(immobileToBeUpdated, REQUEST_MOCKED);
     
-    expect(results.status).toBe(500);
+    thenError(results);
   });
+
+  function whenGetByIsLocalizationIsCalledWithError(){
+    sinon.stub(localizationService, 'getById').rejects(new Error("invalid id"));
+  }
 
   it("addClient Returns 500 when none data is provided", async () => {
     givenUserWithPermission();
     const results = await controller.addClient(null, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when none _id is provided", async () => {
     givenUserWithPermission();
     const results = await controller.addClient({}, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when client is not provided", async () => {
@@ -288,7 +291,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.addClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when client _id is not provided", async () => {
@@ -302,7 +305,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.addClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient", async () => {
@@ -314,25 +317,25 @@ describe('ImmobileController', () => {
       }
     };
 
-    sinon.stub(immobileService, 'getById').callsFake(() => immobile);
-    sinon.stub(immobileService, 'update').callsFake(() => immobile);
+    whenGetByIdIsCalled(immobile);
+    whenUpdateIsCalled();
     const results = await controller.addClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   it("addClient Returns 500 when none data is provided", async () => {
     givenUserWithPermission();
     const results = await controller.removeClient(null, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when none _id is provided", async () => {
     givenUserWithPermission();
     const results = await controller.removeClient({}, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when client is not provided", async () => {
@@ -343,7 +346,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.removeClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("addClient Returns 500 when client _id is not provided", async () => {
@@ -357,7 +360,7 @@ describe('ImmobileController', () => {
 
     const results = await controller.removeClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(500);
+    thenError(results);
   });
 
   it("removeClient", async () => {
@@ -370,11 +373,11 @@ describe('ImmobileController', () => {
       }
     };
 
-    sinon.stub(immobileService, 'getById').callsFake(() => immobile);
-    sinon.stub(immobileService, 'update').callsFake(() => immobile);
+    whenGetByIdIsCalled(immobile);
+    whenUpdateIsCalled();
     const results = await controller.removeClient(immobile, REQUEST_MOCKED);
 
-    expect(results.status).toBe(200);
+    thenSuccess(results);
   });
 
   function givenUserWithPermission(){
@@ -384,6 +387,50 @@ describe('ImmobileController', () => {
   function givenUserWithoutPermission(){
     sinon.stub(groupService, 'hasPermission').callsFake(() => false);
   };
+
+  function whenGetByIdLocalization(value){
+    sinon.stub(localizationService, 'getById').callsFake(() => value);
+  }
+
+  function whenUpdateLocalizationIsCalled(value){
+    sinon.stub(localizationService, 'update').callsFake(() => value);
+  }
+
+  function whenCreateLocatizationIsCalled(value){
+    sinon.stub(localizationService, 'create').callsFake(() => value);
+  }
+
+  function whenCreateImmobileIsCalled(value){
+    sinon.stub(immobileService, 'create').callsFake(() => value);
+  }
+
+  function whenGetByIdUserIsCalled(value){
+    sinon.stub(userService, 'getById').callsFake(() => value);
+  }
+
+  function whenUpdateIsCalled(){
+    sinon.stub(immobileService, 'update').callsFake(() => {});
+  }
+
+  function whenGetByIdIsCalled(value){
+    sinon.stub(immobileService, 'getById').callsFake(() => [value]);
+  }
+
+  function whenGetByIdIsCalledWithError(){
+    sinon.stub(immobileService, 'getById').rejects(new Error("invalid id"));
+  }
+
+  function whenGetEnabledImmobilesIsCalled(){
+    sinon.stub(immobileService, 'getEnabledImmobiles').callsFake(() => []);
+  }
+
+  function thenSuccess(results){
+    expect(results.status).toBe(200);
+  }
+
+  function thenError(results){
+    expect(results.status).toBe(500);
+  }
 
 });
 
