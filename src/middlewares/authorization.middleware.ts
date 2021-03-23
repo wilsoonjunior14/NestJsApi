@@ -19,19 +19,19 @@ export class AuthorizationMiddleware implements NestMiddleware{
     async use(req: any, res: any, next: () => void) {
         try{
             if (!req.headers.authorization){
-                res.json(await this.utils.getInternalServerError(Constants.INVALID_REQUEST_AUTHORIZATION_HEADER_NOT_FOUND, {}, req));
+                res.json(await this.utils.getNonAuthorizedRequest(Constants.INVALID_REQUEST_AUTHORIZATION_HEADER_NOT_FOUND, {}, req));
             }
     
             const authorizationHeader = req.headers.authorization;
             const token = this.utils.getsTokenByHeader(authorizationHeader);
 
             if (!await this.userService.checksIfTokenIsValid(token)){
-                res.json(await this.utils.getInternalServerError(Constants.INVALID_REQUEST_AUTHORIZATION_EXPIRED_TOKEN, {}, req));
+                res.json(await this.utils.getNonAuthorizedRequest(Constants.INVALID_REQUEST_AUTHORIZATION_EXPIRED_TOKEN, {}, req));
             }
     
             next();
         } catch(err){
-            res.json(await this.utils.getInternalServerError(err.toString(), {}, req));
+            res.json(await this.utils.getNonAuthorizedRequest(err.toString(), {}, req));
         }
     }
 }

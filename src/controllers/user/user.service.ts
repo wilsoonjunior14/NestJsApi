@@ -14,7 +14,27 @@ export class UserService {
     }
 
     async getAllEnabled(){
-        return await this.userModel.find();
+        const query = {
+            deleted: false
+        };
+        return await this.getByQuery(query);
+    }
+
+    async getByQuery(query){
+        return await this.userModel.aggregate([
+            {
+                "$match": query
+            }, 
+            {
+                "$lookup":
+                    {
+                        "localField": "group",
+                        "from": "groups",
+                        "foreignField": "_id",
+                        "as": "group"
+                    }
+            }
+        ]);
     }
 
     async getById(id: String){
@@ -25,8 +45,8 @@ export class UserService {
         return await new this.userModel(user).save();
     }
 
-    async update(user: User){
-        return await this.userModel.updateOne({_id: user.id}, user);
+    async update(user){
+        return await this.userModel.updateOne({_id: user._id}, user);
     }
 
     async findByQuery(query: any){

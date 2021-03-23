@@ -110,7 +110,7 @@ export class UserController {
                     '$eq': user.email
                 },
                 _id: {
-                    '$ne': user.id
+                    '$ne': user._id
                 }
             };
             const existingUsers = await this.UserService.findByQuery(query);
@@ -119,7 +119,7 @@ export class UserController {
                 return await this.utils.getInternalServerError(Constants.INVALID_EXISTING_USER, user, request);
             }
 
-            let oldUser = await this.UserService.getById(user.id);
+            let oldUser = await this.UserService.getById(user._id);
             Object.assign(oldUser, user);
             oldUser.updatedBy = currentUser["_id"];
             oldUser.updatedAt = new Date();
@@ -127,7 +127,6 @@ export class UserController {
             await this.UserService.update(oldUser);
             return await this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, oldUser, request);
         } catch(err){
-            console.log(err);
             return await this.utils.getInternalServerError(err.toString(), err, request);
         }
     }

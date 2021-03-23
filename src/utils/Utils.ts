@@ -15,12 +15,16 @@ export class Utils {
         return await this.getAPIResponse(message, 500, data, request);        
     }
 
+    async getNonAuthorizedRequest(message: String, data: any, request: any){
+        return await this.getAPIResponse(message, 401, data, request);        
+    }
+
     async getResponse(message: String, data: any, request: any){
         return await this.getAPIResponse(message, 200, data, request);
     }
 
     async getAPIResponse(message: String, statusCode: Number, data: any, request: any){
-        if (request.headers.authorization){
+        if (request && request.headers.authorization){
             const currentUser = await this.userService.getDataByToken(await this.getsTokenByHeader(request.headers.authorization));
             await this.logsService.saveLog(message, statusCode, data, currentUser, request);
         }
