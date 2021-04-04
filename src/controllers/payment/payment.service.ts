@@ -22,6 +22,11 @@ export class PaymentService{
                     "foreignField": "_id",
                     "as": "contract",
                 }
+            },
+            {
+                "$sort": {
+                    "paymentDate": 1
+                }
             }
         ]);
     }
@@ -32,6 +37,10 @@ export class PaymentService{
 
     public async update(payment){
         return await this.paymentModel.updateOne({_id: payment._id}, payment);
+    }
+
+    public async save(payment){
+        return await new this.paymentModel(payment).save();
     }
 
     public applyImmobileOfContractToPayment(paymentsList, contractsList){
@@ -48,13 +57,12 @@ export class PaymentService{
         let startDate:any = new Date(contract.beginDate);
         let endDate:any = new Date(contract.endDate);
         let differenceInMonthsAmoungDates = Math.floor(Math.abs(startDate - endDate)/(1000*60*60*24*30));
-        let allPayments = (await this.findByQuery({})).length;
 
         let payments = [];
         payments.push(Object.assign(this.getPaymentBaseByContractAndUser(contract, currentUser), 
             {
                 paymentDate: contract.beginDate,
-                paymentCode: "P" + (allPayments + 1) + "" + new Date().getFullYear()
+                paymentCode: this.getNewPaymentCode(1)
             }
         ));
 
@@ -66,7 +74,7 @@ export class PaymentService{
             payments.push(Object.assign(this.getPaymentBaseByContractAndUser(contract, currentUser), 
             {
                 paymentDate: nextDate,
-                paymentCode: "P" + (allPayments + index) + new Date().getFullYear()
+                paymentCode: this.getNewPaymentCode(index)
             }
             ));
         }
@@ -83,6 +91,11 @@ export class PaymentService{
         if (value === 0) return 12;
         if (value < 10) return "0"+value;
         return value;
+    }
+
+    public async getNewPaymentCode(index){
+        let allPayments = await (await this.findByQuery({})).length;
+        return "P" + (allPayments + index) + new Date().getFullYear()
     }
 
     public getPaymentBaseByContractAndUser(contract, user){

@@ -93,19 +93,42 @@ export class PaymentController {
         }
     }
 
-    @Get('/status')
-    public async getTypesOfPayment(@Req() request){
+    @Post()
+    public async create(@Body() payment, @Req() request){
         try{
-            return this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, PaymentStatus, request);
+            const permissionsChecked = await this.utils.userHasPermissionForAction(request, Constants.ROLE_CRUD_CONTRACT);
+            const currentUser = permissionsChecked.currentUser;
+
+            if (permissionsChecked.invalid){
+                return await this.utils.getInternalServerError(permissionsChecked.message, {}, request);
+            }
+
+            let validation = this.validatePayment(payment, false);
+            if (validation.invalid){
+                return this.utils.getInternalServerError(validation.message, payment, request);
+            }
+
+            let newPayment = this.paymentService.getPaymentBaseByContractAndUser({
+                _id: payment.contract._id,
+                monthValue: payment.value,
+            }, currentUser);
+
+            newPayment = Object.assign(newPayment, {
+                paymentDate: payment.paymentDate,
+                paymentCode: await this.paymentService.getNewPaymentCode(0)
+            });
+            const results = await this.paymentService.save(newPayment);
+            
+            return this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
             return this.utils.getInternalServerError(err.toString(), err, request);
         }
     }
 
-    @Post()
-    public async create(@Body() contract, @Req() request){
+    @Get('/status')
+    public async getTypesOfPayment(@Req() request){
         try{
-            return this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, {}, request);
+            return this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, PaymentStatus, request);
         } catch(err){
             return this.utils.getInternalServerError(err.toString(), err, request);
         }
@@ -123,7 +146,7 @@ export class PaymentController {
             validation.message = "Dados do pagamento inválidos! "+Constants.INVALID_IDENTIFIER_NOT_PROVIDED;
         }
 
-        if (!payment.paymentCode){
+        if (hasId && !payment.paymentCode){
             validation.invalid = true;
             validation.message = "Código do pagamento não informado! ";
         }
@@ -131,6 +154,16 @@ export class PaymentController {
         if (!payment.value){
             validation.invalid = true;
             validation.message = "Valor do pagamento inválido ou não informado! ";
+        }
+
+        if (!payment.paymentDate){
+            validation.invalid = true;
+            validation.message = "Data do pagamento não informado ou inválido! ";
+        }
+
+        if (!payment.contract._id){
+            validation.invalid = true;
+            validation.message = "Contrato referente ao pagamento não informado! ";
         }
 
         return validation;
