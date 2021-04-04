@@ -19,6 +19,8 @@ import { LogsController } from './controllers/logs/logs.controller';
 import { LogsModule } from './controllers/logs/logs.module';
 import { ContractModule } from './controllers/contract/contract.module';
 import { ContractController } from './controllers/contract/contract.controller';
+import { PaymentModule } from './controllers/payment/payment.module';
+import { PaymentController } from './controllers/payment/payment.controller';
 
 @Module({
   imports: [
@@ -51,7 +53,8 @@ import { ContractController } from './controllers/contract/contract.controller';
     LocalizationModule,
     ImmobileModule,
     LogsModule,
-    ContractModule
+    ContractModule,
+    PaymentModule
   ],
   controllers: [AppController, LogsController],
   providers: [AppService],
@@ -65,6 +68,7 @@ export class AppModule implements NestModule {
         ImmobileController,
         LocalizationController,
         ContractController,
+        PaymentController,
         {path: 'user', method: RequestMethod.GET},
         {path: 'user', method: RequestMethod.POST},
         {path: 'user', method: RequestMethod.PUT},

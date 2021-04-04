@@ -6,6 +6,7 @@ import { UserService } from '../user/user.service';
 import { Constants } from '../../utils/Contansts';
 import { ImmobileService } from '../immobile/immobile.service';
 import { ContractService } from './contract.service';
+import { PaymentService } from '../payment/payment.service';
 
 @Controller('contract')
 export class ContractController {
@@ -16,7 +17,8 @@ export class ContractController {
         private userService: UserService,
         private groupService: GroupService,
         private immobileService: ImmobileService,
-        private contractService: ContractService){
+        private contractService: ContractService,
+        private paymentService: PaymentService){
         this.utils = new Utils(this.logService, this.userService, this.groupService);
     }
 
@@ -93,11 +95,14 @@ export class ContractController {
             let oldImmobile = await this.immobileService.getById(contract.immobile._id);
             contract.createdBy = currentUser["_id"];
             contract.updatedBy = currentUser["_id"];
+            contract.contractCode = "C" + await (await this.contractService.findByQuery({})).length + "" + new Date().getFullYear();
             const results = await this.contractService.save(contract);
 
             oldImmobile.contract = results._id;
             oldImmobile.updatedAt = new Date();
             await this.immobileService.update(oldImmobile);
+
+            await this.paymentService.generatePaymentsForContract(results, currentUser);
 
             return this.utils.getResponse(Constants.SUCCESS_MESSAGE_OPERATION, results, request);
         } catch(err){
@@ -191,6 +196,13 @@ export class ContractController {
             !contract.immobile._id){
             validationResults.invalid = true;
             validationResults.message = this.utils.buildMessage("Imóvel não informado!", Constants.INVALID_IDENTIFIER_NOT_PROVIDED);
+            return validationResults;
+        }
+
+        if (!contract.client ||
+            !contract.client._id){
+            validationResults.invalid = true;
+            validationResults.message = this.utils.buildMessage("Cliente não informado!", Constants.INVALID_IDENTIFIER_NOT_PROVIDED);
             return validationResults;
         }
 

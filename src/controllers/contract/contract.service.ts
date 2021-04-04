@@ -16,7 +16,28 @@ export class ContractService {
     }
 
     public async findByQuery(query: any){
-        return await this.contractModel.find(query);
+
+        return await this.contractModel.aggregate([
+            {
+                "$match": query
+            },
+            {
+                "$lookup": {
+                    "localField": "immobile",
+                    "from": "immobiles",
+                    "foreignField": "_id",
+                    "as": "immobile"
+                }
+            },
+            {
+                "$lookup": {
+                    "localField": "client",
+                    "from": "users",
+                    "foreignField": "_id",
+                    "as": "client"
+                }
+            }
+        ])
     }
 
     public async findById(_id: String){

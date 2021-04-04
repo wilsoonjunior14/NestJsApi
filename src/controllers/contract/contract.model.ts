@@ -20,6 +20,22 @@ export const ContractSchema = new mongoose.Schema({
         default: false
     },
 
+    paymentDay: {
+        type: Number,
+        required: true
+    },
+
+    contractCode: {
+        type: String,
+        required: true
+    },
+
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+
     immobile: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Immobile",

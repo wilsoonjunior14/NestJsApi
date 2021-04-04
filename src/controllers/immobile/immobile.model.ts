@@ -13,11 +13,6 @@ export const ImmobileSchema = new mongoose.Schema({
         required: true
     },
 
-    client: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-    },
-
     localization: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Localization",
